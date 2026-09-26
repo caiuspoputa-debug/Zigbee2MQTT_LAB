@@ -1,30 +1,30 @@
-# Zigbee2MQTT M1S ZoH LAB 12 Experimental
+# Zigbee2MQTT M1S ZoH LAB 18 Experimental
 
-Version: `2.14.1-lab.17`  
-Tag: `v2.14.1-lab.17`
+Version: `2.14.1-lab.18`  
+Tag: `v2.14.1-lab.18`
 
-LAB 12 tests forced MAC Frame Pending during Aqara sleepy-device join.
+LAB 18 tests host-side local indirect fast-path / preloading for Aqara sleepy-device join.
 
 ## Experimental change
-While a MAC association is pending or the child has indirect traffic queued, LAB 12 temporarily disables `MAC_SRC_MATCH_ENABLED`. On OpenThread RCP this forces the Frame Pending bit in ACKs to MAC Data Requests. Once the association and indirect queue are empty, source matching is automatically re-enabled.
+LAB 18 keeps the known LAB13 timing baseline and changes one functional variable: the real indirect MAC frame is copied into a preloaded host-side queue entry before the sleepy child polls. When `DATA_REQ` arrives, ZoH sends that already-built payload directly through `STREAM_RAW`, instead of calling a deferred closure that re-enters the normal direct-send path.
 
-LAB 12 preserves LAB 8/9/10 behavior, including extended MAC destination for the transport key, retry after `NO_ACK`, IEEE+short source-match bookkeeping, and the LAB 10 one-shot MAC probe. The LAB 11 artificial 5 ms delay is not used.
+The LAB17 one-shot 87-byte filler probe is removed, so the test observes the real queued indirect frame only. LAB18 still cannot move the queue into JN5189 firmware because this add-on only patches Zigbee2MQTT / zigbee-on-host JavaScript; the package is intentionally designed to prove whether host-side preloading is enough, or whether the remaining logic must move into RCP/JN5189.
 
 Key log marker:
 ```
-[AQARA-LAB12] FORCE_FRAME_PENDING active=true sourceMatchEnabled=false ...
+[AQARA-LAB18] PRELOADED ...
+[AQARA-LAB18] FAST_PATH_RESULT ...
 ```
 
 Success target:
 ```
 [AQARA-LAB12] FORCE_FRAME_PENDING active=true sourceMatchEnabled=false
-[AQARA-JOIN] 9 DATA_REQ ...
-[AQARA-JOIN] 11 INDIRECT_TX_RESULT ... success=true
+[AQARA-LAB18] PRELOADED ... bytes=87 ...
+[AQARA-LAB18] FAST_PATH_RESULT ... success=true
 [AQARA-JOIN] 5 AUTHORIZED
 [AQARA-JOIN] 6 DEVICE_ANNCE
 [AQARA-JOIN] 7 DEVICE_JOINED_CALLBACK
 ```
 
-
-## LAB 17
-Single-variable diagnostic based on LAB 13: the one-shot SHORT MAC probe keeps the same addressing/flags/timing path but carries 76 bytes of 0xA5 filler, producing an 87-byte MAC frame. The real TRANSPORT_KEY remains queued for the following poll.
+## LAB 18
+Single-variable experiment based on LAB17/LAB13: remove the synthetic filler probe and preload the real indirect frame before poll. No firmware flashing, no coordinator firmware changes, no artificial delay, and no heavy logging before TX.

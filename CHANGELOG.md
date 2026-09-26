@@ -8,6 +8,13 @@
 
 # Changelog
 
+## 2.14.1-lab.18 - 2026-09-26
+- Based on LAB 17 archive, with LAB 13 timing kept as the measurement baseline.
+- Removes the LAB 17 one-shot 87-byte filler probe; LAB18 sends only the real queued indirect frame.
+- Preloads each indirect frame as an immutable host-side entry (`seqNum`, payload copy, destination, timestamp) before the child poll.
+- On MAC `DATA_REQ`, the hot path sends the already-built payload locally through ZoH/STREAM_RAW and logs one post-TX `[AQARA-LAB18] FAST_PATH_RESULT` line.
+- No coordinator firmware change and no unrelated Zigbee behavior change.
+
 ## 2.14.1-lab.13 - 2026-09-26
 - Temporarily disable RCP MAC source matching during pending association/indirect delivery to force Frame Pending in ACKs to sleepy-child polls.
 - Automatically restore source matching after association and indirect queues empty.

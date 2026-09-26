@@ -17,12 +17,12 @@ RUN test "$(node -p "require('/app/package.json').version")" = "2.14.1" && \
     node --check /app/node_modules/.pnpm/zigbee-on-host@0.2.4/node_modules/zigbee-on-host/dist/zigbee-stack/mac-handler.js && \
     node --check /app/node_modules/.pnpm/zigbee-on-host@0.2.4/node_modules/zigbee-on-host/dist/zigbee-stack/aps-handler.js && \
     node --check /app/node_modules/.pnpm/zigbee-on-host@0.2.4/node_modules/zigbee-on-host/dist/drivers/ot-rcp-driver.js && \
-    test "$(grep -c '\[AQARA-JOIN\]' /app/node_modules/.pnpm/zigbee-on-host@0.2.4/node_modules/zigbee-on-host/dist/zigbee-stack/mac-handler.js)" = "9" && \
+    test "$(grep -c '\[AQARA-JOIN\]' /app/node_modules/.pnpm/zigbee-on-host@0.2.4/node_modules/zigbee-on-host/dist/zigbee-stack/mac-handler.js)" = "5" && \
     test "$(grep -c '\[AQARA-JOIN\]' /app/node_modules/.pnpm/zigbee-on-host@0.2.4/node_modules/zigbee-on-host/dist/zigbee-stack/aps-handler.js)" = "3" && \
     test "$(grep -c '\[AQARA-LAB8\]' /app/node_modules/.pnpm/zigbee-on-host@0.2.4/node_modules/zigbee-on-host/dist/zigbee-stack/aps-handler.js)" = "1" && \
     test "$(grep -c '\[AQARA-LAB9\]' /app/node_modules/.pnpm/zigbee-on-host@0.2.4/node_modules/zigbee-on-host/dist/drivers/ot-rcp-driver.js)" = "1" && \
-    test "$(grep -c '\[AQARA-LAB10\]' /app/node_modules/.pnpm/zigbee-on-host@0.2.4/node_modules/zigbee-on-host/dist/zigbee-stack/mac-handler.js)" = "3" && \
     test "$(grep -c '\[AQARA-LAB12\]' /app/node_modules/.pnpm/zigbee-on-host@0.2.4/node_modules/zigbee-on-host/dist/drivers/ot-rcp-driver.js)" = "1" && \
+    test "$(grep -c '\[AQARA-LAB18\]' /app/node_modules/.pnpm/zigbee-on-host@0.2.4/node_modules/zigbee-on-host/dist/zigbee-stack/mac-handler.js)" = "3" && \
     rm -rf /tmp/zoh-lab
 
 COPY run.sh /usr/local/bin/run-z2m-m1s-lab
