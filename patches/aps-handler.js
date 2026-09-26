@@ -916,27 +916,56 @@ class APSHandler {
             relayIndex,
             relayAddresses,
         }, apsFrame, nwkSecurityHeader, undefined);
-        const macFrame = (0, mac_js_1.encodeMACFrameZigbee)({
-            frameControl: {
-                frameType: 1 /* MACFrameType.DATA */,
-                securityEnabled: false,
-                framePending: Boolean(this.#context.indirectTransmissions.get(nwkDest64 ?? this.#context.address16ToAddress64.get(nwkDest16))?.length),
-                ackRequest: macDest16 !== 65535 /* ZigbeeMACConsts.BCAST_ADDR */,
-                panIdCompression: true,
-                seqNumSuppress: false,
-                iePresent: false,
-                destAddrMode: 2 /* MACFrameAddressMode.SHORT */,
-                frameVersion: 0 /* MACFrameVersion.V2003 */,
-                sourceAddrMode: 2 /* MACFrameAddressMode.SHORT */,
-            },
-            sequenceNumber: macSeqNum,
-            destinationPANId: this.#context.netParams.panId,
-            destination16: macDest16,
-            // sourcePANId: undefined, // panIdCompression=true
-            source16: 0 /* ZigbeeConsts.COORDINATOR_ADDRESS */,
-            fcs: 0,
-        }, nwkFrame);
-        const result = await this.#macHandler.sendFrame(macSeqNum, macFrame, macDest16, undefined);
+        const useExtendedMacDestination = cmdId === 5 /* ZigbeeAPSCommandId.TRANSPORT_KEY */ &&
+            nwkDest64 !== undefined &&
+            nwkDest16 < 65528 /* ZigbeeConsts.BCAST_MIN */ &&
+            relayIndex === undefined;
+        const framePending = Boolean(this.#context.indirectTransmissions.get(nwkDest64 ?? this.#context.address16ToAddress64.get(nwkDest16))?.length);
+        const macFrame = useExtendedMacDestination
+            ? (0, mac_js_1.encodeMACFrame)({
+                frameControl: {
+                    frameType: 1 /* MACFrameType.DATA */,
+                    securityEnabled: false,
+                    framePending,
+                    ackRequest: true,
+                    panIdCompression: true,
+                    seqNumSuppress: false,
+                    iePresent: false,
+                    destAddrMode: 3 /* MACFrameAddressMode.EXT */,
+                    frameVersion: 0 /* MACFrameVersion.V2003 */,
+                    sourceAddrMode: 2 /* MACFrameAddressMode.SHORT */,
+                },
+                sequenceNumber: macSeqNum,
+                destinationPANId: this.#context.netParams.panId,
+                destination64: nwkDest64,
+                // sourcePANId: undefined, // panIdCompression=true
+                source16: 0 /* ZigbeeConsts.COORDINATOR_ADDRESS */,
+                fcs: 0,
+            }, nwkFrame)
+            : (0, mac_js_1.encodeMACFrameZigbee)({
+                frameControl: {
+                    frameType: 1 /* MACFrameType.DATA */,
+                    securityEnabled: false,
+                    framePending,
+                    ackRequest: macDest16 !== 65535 /* ZigbeeMACConsts.BCAST_ADDR */,
+                    panIdCompression: true,
+                    seqNumSuppress: false,
+                    iePresent: false,
+                    destAddrMode: 2 /* MACFrameAddressMode.SHORT */,
+                    frameVersion: 0 /* MACFrameVersion.V2003 */,
+                    sourceAddrMode: 2 /* MACFrameAddressMode.SHORT */,
+                },
+                sequenceNumber: macSeqNum,
+                destinationPANId: this.#context.netParams.panId,
+                destination16: macDest16,
+                // sourcePANId: undefined, // panIdCompression=true
+                source16: 0 /* ZigbeeConsts.COORDINATOR_ADDRESS */,
+                fcs: 0,
+            }, nwkFrame);
+        if (useExtendedMacDestination) {
+            logger_js_1.logger.info(`[AQARA-LAB8] TRANSPORT_KEY_MAC_EXT nwk=${nwkDest16} ieee=${nwkDest64} route16=${macDest16} seq=${macSeqNum}`, NS);
+        }
+        const result = await this.#macHandler.sendFrame(macSeqNum, macFrame, macDest16, useExtendedMacDestination ? nwkDest64 : undefined);
         return result !== false;
     }
     /**

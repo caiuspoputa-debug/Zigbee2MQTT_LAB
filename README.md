@@ -9,7 +9,7 @@ Add-on local Home Assistant bazat pe Zigbee2MQTT 2.14.1, cu:
 - remediere experimentala pentru sincronizarea asocierilor si a cozii indirecte cu listele MAC source-match ale RCP-ului;
 - retransmiterea cadrului indirect la urmatorul DATA_REQUEST atunci cand transmisia primeste NO_ACK.
 
-LAB 6 modifica functional livrarea indirecta. LAB 5 ramane varianta de diagnostic fara schimbari functionale.
+LAB 8 pastreaza mecanismul indirect/retry din LAB 7 si testeaza `TRANSPORT_KEY` cu destinatie MAC IEEE, pastrand destinatia logica NWK pe adresa scurta.
 
 ## Instalare minima in Home Assistant OS/Supervised
 
@@ -28,7 +28,7 @@ Configuratia initiala M1S/TCP provine din kitul `Aqara_M1S_0.1.0_COORDINATOR_LAB
 1. Confirma in log versiunea Zigbee2MQTT 2.14.1 si conectarea la `tcp://IP_M1S:1886` cu adaptorul `zoh`.
 2. Activeaza temporar permit join si imperecheaza un singur dispozitiv Aqara.
 3. Cauta `[AQARA-JOIN]` in logul add-on-ului.
-4. Confirma aparitia `RCP_SRC_MATCH`, apoi urmareste marcajele 8-11. Succesul asteptat este `INDIRECT_TX_RESULT ... success=true`, urmat de marcajele 5-7.
+4. Confirma aparitia `RCP_SRC_MATCH` si `[AQARA-LAB8] TRANSPORT_KEY_MAC_EXT`, apoi urmareste marcajele 8-11. Succesul asteptat este `INDIRECT_TX_RESULT ... success=true`, urmat de marcajele 5-7.
 5. Dezactiveaza permit join dupa test.
 
 Nu porni doua procese Zigbee coordinator simultan pe acelasi endpoint TCP al M1S.

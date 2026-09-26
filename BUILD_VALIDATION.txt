@@ -1,31 +1,41 @@
 Zigbee2MQTT M1S ZoH LAB - validation 2026-09-26
 
-Package version: 2.14.1-lab.7 experimental
+Package version: 2.14.1-lab.8 experimental
 
 Pinned versions
 - Zigbee2MQTT 2.14.1
 - zigbee-herdsman 10.9.2
 - zigbee-on-host 0.2.4
 
-Passed checks
-- Full Zigbee2MQTT TypeScript build: PASS
+LAB 8 delta
+- Initial direct-unicast TRANSPORT_KEY keeps NWK destination on the assigned short address.
+- Its MAC data frame is encoded with destination mode EXT and destination64 set to the joining device IEEE address.
+- All non-matching APS command traffic keeps the LAB 7 short-address MAC encoder path.
+- LAB 7 source-match synchronization and retry-after-NO_ACK behavior are unchanged.
+
+Passed local checks
 - mac-handler.js node --check: PASS
 - aps-handler.js node --check: PASS
 - ot-rcp-driver.js node --check: PASS
-- Home Assistant add-on config YAML parse: PASS
-- M1S source configuration YAML parse: PASS
-- run.sh shell syntax: PASS
 - sync-options.cjs node --check: PASS
+- run.sh shell syntax: PASS
+- Home Assistant add-on config YAML parse: PASS
+- repository.yaml parse: PASS
 - mac-handler.js AQARA-JOIN markers: 9
 - aps-handler.js AQARA-JOIN markers: 3
-- aps-handler.js audit after removing logger lines equals upstream local file: PASS
+- aps-handler.js AQARA-LAB8 markers: 1
+- mac-handler.js identical to LAB 7: PASS
+- ot-rcp-driver.js identical to LAB 7: PASS
+- LAB 8 functional code delta confined to aps-handler.js: PASS
+- Dockerfile contains LAB 8 marker-count guard: PASS
 
 Patch SHA256
 AEF23A6EB3D206CF01AEBD12807228B392572DA65B8D85003005E3421930CDDC  mac-handler.js
-E1C34B1A7DB275FC3A2F6A6E72D5604DEDFED384EFACA9F6D95D26FD26300B04  aps-handler.js
+C87E86F95620BEDC2ED1802265EEA55A525203AAC9CE1EEB71AF8DB608924EB7  aps-handler.js
 3AD55A9291095C861EE07A2CBAECFB7F272568D9C77AE9E34E917C29FDB485AF  ot-rcp-driver.js
 
 Not run locally
 - Docker image build/start: Docker is not installed on the validation host.
+- Full Zigbee2MQTT TypeScript rebuild: source tree/toolchain is not included in this add-on archive.
 
-The Dockerfile repeats version checks, JavaScript syntax checks and marker-count checks during the Home Assistant add-on build.
+The Dockerfile repeats pinned-version checks, JavaScript syntax checks, AQARA-JOIN marker-count checks and the LAB 8 marker-count check during the Home Assistant add-on image build.

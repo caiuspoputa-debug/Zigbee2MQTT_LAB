@@ -16,4 +16,4 @@ Instrumentation scope:
 6. `DEVICE_ANNCE`
 7. `DEVICE_JOINED_CALLBACK`
 
-No association status, address, key, authorization condition, scheduling or callback was changed.
+LAB 8 pastreaza cheia, securitatea, starea de asociere, autorizarea si callback-urile din LAB 7. Singura schimbare functionala noua este adresarea MAC extinsa (IEEE) pentru `TRANSPORT_KEY` initial, numai la unicast direct; destinatia NWK ramane adresa scurta.

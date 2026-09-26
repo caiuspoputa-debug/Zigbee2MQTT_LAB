@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.14.1-lab.8
+
+- Keep APS/NWK destination on the assigned short address while encoding the initial NWK `TRANSPORT_KEY` MAC frame with the joining device IEEE destination.
+- Use the generic MAC encoder only for direct unicast `TRANSPORT_KEY` frames with an IEEE destination; all other APS command traffic keeps the LAB 7 short-address MAC path.
+- Add `[AQARA-LAB8] TRANSPORT_KEY_MAC_EXT` diagnostic logging with NWK, IEEE, route16 and MAC sequence.
+- Preserve LAB 7 source-match handling and retry-on-NO_ACK behavior.
+
 ## 2.14.1-lab.7
 
 - Populate the RCP extended source-match list before the association-response poll.
