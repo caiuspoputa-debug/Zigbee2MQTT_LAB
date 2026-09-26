@@ -1,6 +1,6 @@
 Zigbee2MQTT M1S ZoH LAB - validation 2026-09-26
 
-Package version: 2.14.1-lab.3
+Package version: 2.14.1-lab.4
 
 Pinned versions
 - Zigbee2MQTT 2.14.1

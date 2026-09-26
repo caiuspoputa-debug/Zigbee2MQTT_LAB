@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.14.1-lab.4
+
+- Fix the add-on startup script to use Linux LF line endings.
+
 ## 2.14.1-lab.3
 
 - Add diagnostic markers 8-11 for sleepy-device DATA_REQUEST and indirect frame delivery.
