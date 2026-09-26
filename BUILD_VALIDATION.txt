@@ -1,7 +1,9 @@
-LAB 16 validation
-- config.yaml version: 2.14.1-lab.16
-- Base: LAB 13
-- Functional test delta: one-shot empty MAC probe destination SHORT -> EXT/IEEE
-- Expected probe frame length: 17 bytes
-- No matrix and no artificial delay
-- Dockerfile validation fixed: LAB10 count=1, LAB16 count=2
+LAB 13 validation
+- config.yaml version: 2.14.1-lab.13
+- node --check patches/mac-handler.js: PASS
+- node --check patches/ot-rcp-driver.js: PASS
+- node --check patches/aps-handler.js: PASS
+- YAML parse config.yaml/repository.yaml: PASS
+- Functional baseline: LAB 12
+- No intentional protocol/addressing/security/delay changes; diagnostic timing instrumentation only.
+- Docker runtime test: not performed in this environment.

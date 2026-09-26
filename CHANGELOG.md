@@ -1,13 +1,3 @@
-# LAB 16
-
-- Built directly from LAB 13, not LAB 15.
-- Keeps the LAB 13 one-shot probe path and timing instrumentation.
-- Changes only the probe MAC destination from SHORT to EXT/IEEE.
-- No probe matrix, no payload-size experiment, no artificial delay.
-- Keeps TRANSPORT_KEY queued for the following poll.
-
-# Previous changelog
-
 # LAB 13
 
 - Diagnostic-only timing instrumentation for Aqara sleepy-device join.
@@ -23,3 +13,9 @@
 - Automatically restore source matching after association and indirect queues empty.
 - Remove the LAB 11 timing hypothesis: no artificial 5 ms delay.
 - Preserve LAB 8/9/10 experimental behavior and diagnostics.
+
+
+## 2.14.1-lab.17
+- Based strictly on LAB 13.
+- Changes only the one-shot SHORT probe payload from 0 bytes to 76 bytes of 0xA5 (87-byte MAC frame total).
+- No addressing, security, source-match, frame-pending, indirect-queue, or timing changes.

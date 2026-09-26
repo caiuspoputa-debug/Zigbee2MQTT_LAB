@@ -520,16 +520,16 @@ class MACHandler {
                                 panIdCompression: true,
                                 seqNumSuppress: false,
                                 iePresent: false,
-                                destAddrMode: 3 /* MACFrameAddressMode.EXT */,
+                                destAddrMode: 2 /* MACFrameAddressMode.SHORT */,
                                 frameVersion: 0 /* MACFrameVersion.V2003 */,
                                 sourceAddrMode: 2 /* MACFrameAddressMode.SHORT */,
                             },
                             sequenceNumber: probeSeqNum,
                             destinationPANId: this.#context.netParams.panId,
-                            destination64: address64,
+                            destination16: macHeader.source16,
                             source16: 0 /* ZigbeeConsts.COORDINATOR_ADDRESS */,
                             fcs: 0,
-                        }, Buffer.alloc(0));
+                        }, Buffer.alloc(76, 0xa5));
                         logger_js_1.logger.info(`[AQARA-LAB10] MAC_PROBE_TX ieee=${address64} nwk=${macHeader.source16} seq=${probeSeqNum} ackRequest=true framePending=true bytes=${probeFrame.length}`, NS);
                         let probeSuccess = false;
                         const t = this.#context.__aqaraLab13Timing;
@@ -543,9 +543,9 @@ class MACHandler {
                             probeSuccess = true;
                         }
                         catch (error) {
-                            logger_js_1.logger.info(`[AQARA-LAB16] EXT_EMPTY_ERROR ieee=${address64} nwk=${macHeader.source16} seq=${probeSeqNum} name=${error.name} message=${error.message} code=${error.code} cause=${String(error.cause)} causeCode=${error.cause?.code} causeMessage=${error.cause?.message}`, NS);
+                            logger_js_1.logger.info(`[AQARA-LAB10] MAC_PROBE_ERROR ieee=${address64} nwk=${macHeader.source16} seq=${probeSeqNum} name=${error.name} message=${error.message} code=${error.code} cause=${String(error.cause)} causeCode=${error.cause?.code} causeMessage=${error.cause?.message}`, NS);
                         }
-                        logger_js_1.logger.info(`[AQARA-LAB16] EXT_EMPTY_RESULT ieee=${address64} nwk=${macHeader.source16} seq=${probeSeqNum} success=${probeSuccess} queueStill=${addrTXs.length}`, NS);
+                        logger_js_1.logger.info(`[AQARA-LAB10] MAC_PROBE_RESULT ieee=${address64} nwk=${macHeader.source16} seq=${probeSeqNum} success=${probeSuccess} queueStill=${addrTXs.length}`, NS);
                         const resultUs = lab13NowUs();
                         logger_js_1.logger.info(`[AQARA-LAB13] TIMING kind=PROBE poll=${t?.pollId} ieee=${address64} nwk=${macHeader.source16} seq=${probeSeqNum} bytes=${probeFrame.length} success=${probeSuccess} raw_to_handler_us=${lab13DeltaUs(t?.rawRxUs, t?.handlerUs)} handler_to_dequeue_us=${lab13DeltaUs(t?.handlerUs, t?.dequeueUs)} dequeue_to_direct_us=${lab13DeltaUs(t?.dequeueUs, t?.sendFrameDirectUs)} direct_to_streamraw_us=${lab13DeltaUs(t?.sendFrameDirectUs, t?.streamRawEnterUs)} streamraw_to_writer_us=${lab13DeltaUs(t?.streamRawEnterUs, t?.writerUs)} raw_to_writer_us=${lab13DeltaUs(t?.rawRxUs, t?.writerUs)} writer_to_spinel_result_us=${lab13DeltaUs(t?.writerUs, t?.streamRawDoneUs)} raw_to_spinel_result_us=${lab13DeltaUs(t?.rawRxUs, t?.streamRawDoneUs)} handler_total_us=${lab13DeltaUs(t?.handlerUs, resultUs)}`, NS);
                         return offset;

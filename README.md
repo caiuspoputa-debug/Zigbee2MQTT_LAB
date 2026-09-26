@@ -1,30 +1,30 @@
-# Zigbee2MQTT M1S ZoH LAB 16 Experimental
+# Zigbee2MQTT M1S ZoH LAB 12 Experimental
 
-Version: `2.14.1-lab.16`  
-Tag: `v2.14.1-lab.16`
+Version: `2.14.1-lab.17`  
+Tag: `v2.14.1-lab.17`
 
-LAB 16 is a single-variable follow-up to LAB 13. LAB 13 proved that the one-shot 11-byte SHORT-destination MAC probe can be ACKed by the Aqara sleepy device. LAB 16 keeps the same one-shot probe path and changes only the MAC destination addressing mode to EXT/IEEE.
+LAB 12 tests forced MAC Frame Pending during Aqara sleepy-device join.
 
 ## Experimental change
-The first post-association poll with an indirect TRANSPORT_KEY queued sends one empty MAC DATA probe with:
+While a MAC association is pending or the child has indirect traffic queued, LAB 12 temporarily disables `MAC_SRC_MATCH_ENABLED`. On OpenThread RCP this forces the Frame Pending bit in ACKs to MAC Data Requests. Once the association and indirect queue are empty, source matching is automatically re-enabled.
 
-- destination mode: EXT / IEEE
-- destination IEEE: joining Aqara device
-- source mode: SHORT / coordinator 0x0000
-- ACK request: true
-- Frame Pending: true
-- payload: 0 bytes
-- expected frame length: 17 bytes
+LAB 12 preserves LAB 8/9/10 behavior, including extended MAC destination for the transport key, retry after `NO_ACK`, IEEE+short source-match bookkeeping, and the LAB 10 one-shot MAC probe. The LAB 11 artificial 5 ms delay is not used.
 
-The real TRANSPORT_KEY remains queued and is attempted on the next poll exactly as in LAB 13. LAB 12 force-frame-pending behavior and LAB 13 timing instrumentation remain unchanged.
-
-Important: the pre-TX probe log line remains the existing `[AQARA-LAB10] MAC_PROBE_TX` line so the critical path is changed as little as possible. LAB 16 identifies the outcome with the post-TX marker:
-
+Key log marker:
 ```
-[AQARA-LAB16] EXT_EMPTY_RESULT ... success=true|false
+[AQARA-LAB12] FORCE_FRAME_PENDING active=true sourceMatchEnabled=false ...
 ```
 
-Interpretation:
-- `success=true`: EXT addressing itself is valid; next useful test is a large SHORT probe.
-- `success=false` with a fast `raw_to_writer_us`: EXT addressing is the likely differentiator versus LAB 13.
-- `success=false` with a much slower `raw_to_writer_us`: repeat before attributing failure to addressing, because the poll receive window may have been missed.
+Success target:
+```
+[AQARA-LAB12] FORCE_FRAME_PENDING active=true sourceMatchEnabled=false
+[AQARA-JOIN] 9 DATA_REQ ...
+[AQARA-JOIN] 11 INDIRECT_TX_RESULT ... success=true
+[AQARA-JOIN] 5 AUTHORIZED
+[AQARA-JOIN] 6 DEVICE_ANNCE
+[AQARA-JOIN] 7 DEVICE_JOINED_CALLBACK
+```
+
+
+## LAB 17
+Single-variable diagnostic based on LAB 13: the one-shot SHORT MAC probe keeps the same addressing/flags/timing path but carries 76 bytes of 0xA5 filler, producing an 87-byte MAC frame. The real TRANSPORT_KEY remains queued for the following poll.
