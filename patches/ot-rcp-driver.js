@@ -270,7 +270,13 @@ class OTRCPDriver {
                 }
             }
         }
-        const extendedAddresses = [...this.context.pendingAssociations.keys()];
+        const queuedExtendedAddresses = [];
+        for (const [address64, transmissions] of this.context.indirectTransmissions) {
+            if (transmissions.length > 0) {
+                queuedExtendedAddresses.push(address64);
+            }
+        }
+        const extendedAddresses = [...new Set([...this.context.pendingAssociations.keys(), ...queuedExtendedAddresses])];
         const [shortPayload, shortOffset] = (0, spinel_js_1.writePropertyId)(4868 /* SpinelPropertyId.MAC_SRC_MATCH_SHORT_ADDRESSES */, shortAddresses.length * 2);
         for (let index = 0; index < shortAddresses.length; index++) {
             shortPayload.writeUInt16LE(shortAddresses[index], shortOffset + index * 2);
@@ -282,6 +288,7 @@ class OTRCPDriver {
         await this.setProperty(shortPayload);
         await this.setProperty(extendedPayload);
         logger_js_1.logger.info(`[AQARA-JOIN] RCP_SRC_MATCH short=${shortAddresses.join(",")} extended=${extendedAddresses.join(",")} shortCount=${shortAddresses.length} extendedCount=${extendedAddresses.length}`, NS);
+        logger_js_1.logger.info(`[AQARA-LAB9] SRC_MATCH_HOLD queuedExtended=${queuedExtendedAddresses.join(",")} queuedExtendedCount=${queuedExtendedAddresses.length}`, NS);
     }
     async sendStreamRaw(payload) {
         await this.setProperty((0, spinel_js_1.writePropertyStreamRaw)(payload, this.#streamRawConfig));

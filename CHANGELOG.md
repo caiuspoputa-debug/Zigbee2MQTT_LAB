@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.14.1-lab.9
+
+- Keep the IEEE source-match entry active while a joining sleepy device still has queued indirect traffic.
+- Build the RCP extended source-match list from both pending associations and non-empty indirect-transmission queues.
+- Keep the short source-match entry active in parallel, so LAB 8 MAC-extended `TRANSPORT_KEY` can be retried without dropping the joining device IEEE match.
+- Remove both source-match entries naturally after successful delivery empties the indirect queue.
+- Add `[AQARA-LAB9] SRC_MATCH_HOLD` diagnostics; preserve all LAB 8 join/retry/addressing behavior.
+
 ## 2.14.1-lab.8
 
 - Keep APS/NWK destination on the assigned short address while encoding the initial NWK `TRANSPORT_KEY` MAC frame with the joining device IEEE destination.
