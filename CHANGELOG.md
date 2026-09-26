@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.14.1-lab.5
+
+- Report the complete MAC transmission error name, message, code and cause details at info level.
+
 ## 2.14.1-lab.4
 
 - Fix the add-on startup script to use Linux LF line endings.

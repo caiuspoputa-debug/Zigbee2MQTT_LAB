@@ -81,6 +81,7 @@ class MACHandler {
         }
         catch (error) {
             logger_js_1.logger.debug(() => `=x=> MAC[seqNum=${seqNum} dst=${dest16}:${dest64}] ${error.message}`, NS);
+            logger_js_1.logger.info(`[AQARA-JOIN] 12 MAC_TX_ERROR ieee=${dest64} nwk=${dest16} seq=${seqNum} name=${error.name} message=${error.message} code=${error.code} cause=${String(error.cause)} causeCode=${error.cause?.code} causeMessage=${error.cause?.message}`, NS);
             if (error.cause === this.#noACKCode && dest16 !== undefined) {
                 this.#context.macNoACKs.set(dest16, (this.#context.macNoACKs.get(dest16) ?? 0) + 1);
                 this.#callbacks.onMarkRouteFailure(dest16);

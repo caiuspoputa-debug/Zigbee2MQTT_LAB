@@ -1,5 +1,5 @@
 name: Zigbee2MQTT M1S ZoH LAB
-version: 2.14.1-lab.4
+version: 2.14.1-lab.5
 slug: zigbee2mqtt_m1s_zoh_lab
 description: Zigbee2MQTT 2.14.1 with Aqara join instrumentation for the M1S ZoH coordinator
 url: https://github.com/Koenkk/zigbee2mqtt
