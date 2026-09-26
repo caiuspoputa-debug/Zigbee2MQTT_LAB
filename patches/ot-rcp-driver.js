@@ -277,6 +277,13 @@ class OTRCPDriver {
             }
         }
         const extendedAddresses = [...new Set([...this.context.pendingAssociations.keys(), ...queuedExtendedAddresses])];
+        const forceFramePending = this.context.pendingAssociations.size > 0 || queuedExtendedAddresses.length > 0;
+        // LAB 12: while an association or indirect delivery is pending, disable source matching.
+        // OpenThread RCP behavior then forces Frame Pending=1 in ACKs to MAC Data Requests.
+        // Disable first so the next child poll already observes forced Frame Pending.
+        if (forceFramePending) {
+            await this.setProperty((0, spinel_js_1.writePropertyb)(4867 /* SpinelPropertyId.MAC_SRC_MATCH_ENABLED */, false));
+        }
         const [shortPayload, shortOffset] = (0, spinel_js_1.writePropertyId)(4868 /* SpinelPropertyId.MAC_SRC_MATCH_SHORT_ADDRESSES */, shortAddresses.length * 2);
         for (let index = 0; index < shortAddresses.length; index++) {
             shortPayload.writeUInt16LE(shortAddresses[index], shortOffset + index * 2);
@@ -287,8 +294,14 @@ class OTRCPDriver {
         }
         await this.setProperty(shortPayload);
         await this.setProperty(extendedPayload);
+        // When no association and no indirect traffic remain, restore normal source matching only
+        // after the tables have been synchronized.
+        if (!forceFramePending) {
+            await this.setProperty((0, spinel_js_1.writePropertyb)(4867 /* SpinelPropertyId.MAC_SRC_MATCH_ENABLED */, true));
+        }
         logger_js_1.logger.info(`[AQARA-JOIN] RCP_SRC_MATCH short=${shortAddresses.join(",")} extended=${extendedAddresses.join(",")} shortCount=${shortAddresses.length} extendedCount=${extendedAddresses.length}`, NS);
         logger_js_1.logger.info(`[AQARA-LAB9] SRC_MATCH_HOLD queuedExtended=${queuedExtendedAddresses.join(",")} queuedExtendedCount=${queuedExtendedAddresses.length}`, NS);
+        logger_js_1.logger.info(`[AQARA-LAB12] FORCE_FRAME_PENDING active=${forceFramePending} sourceMatchEnabled=${!forceFramePending} pendingAssociations=${this.context.pendingAssociations.size} queuedExtendedCount=${queuedExtendedAddresses.length}`, NS);
     }
     async sendStreamRaw(payload) {
         await this.setProperty((0, spinel_js_1.writePropertyStreamRaw)(payload, this.#streamRawConfig));
