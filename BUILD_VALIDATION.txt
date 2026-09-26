@@ -1,0 +1,26 @@
+Zigbee2MQTT M1S ZoH LAB - validation 2026-09-26
+
+Pinned versions
+- Zigbee2MQTT 2.14.1
+- zigbee-herdsman 10.9.2
+- zigbee-on-host 0.2.4
+
+Passed checks
+- Full Zigbee2MQTT TypeScript build: PASS
+- mac-handler.js node --check: PASS
+- aps-handler.js node --check: PASS
+- Home Assistant add-on config YAML parse: PASS
+- M1S source configuration YAML parse: PASS
+- run.sh shell syntax: PASS
+- mac-handler.js AQARA-JOIN markers: 4
+- aps-handler.js AQARA-JOIN markers: 3
+- aps-handler.js audit after removing logger lines equals upstream local file: PASS
+
+Patch SHA256
+C8325088CFE26EEEFD27A53BFAD4400EAD61E696B40ED97EF9C8D4955141ECF4  mac-handler.js
+6E31CD64A7CC2DB8F20B55A33C5F6C95C9F98D7DAF11B0556E560E15DC895BDF  aps-handler.js
+
+Not run locally
+- Docker image build/start: Docker is not installed on the validation host.
+
+The Dockerfile repeats version checks, JavaScript syntax checks and marker-count checks during the Home Assistant add-on build.
