@@ -118,6 +118,7 @@ class MACHandler {
                         sendFrame: this.sendFrameDirect.bind(this, seqNum, payload, dest16, dest64),
                         timestamp: Date.now(),
                     });
+                    logger_js_1.logger.info(`[AQARA-JOIN] 8 INDIRECT_QUEUED ieee=${dest64} nwk=${dest16} seq=${seqNum} queue=${addrTXs.length}`, NS);
                     logger_js_1.logger.debug(() => `=|=> MAC[seqNum=${seqNum} dst=${dest16}:${dest64}] set for indirect transmission (count=${addrTXs.length})`, NS);
                     return; // done
                 }
@@ -466,6 +467,8 @@ class MACHandler {
         }
         if (address64 !== undefined) {
             const pendingAssoc = this.#context.pendingAssociations.get(address64);
+            const queuedCount = this.#context.indirectTransmissions.get(address64)?.length ?? 0;
+            logger_js_1.logger.info(`[AQARA-JOIN] 9 DATA_REQ ieee=${address64} nwk=${macHeader.source16} pendingAssoc=${pendingAssoc !== undefined} queue=${queuedCount}`, NS);
             if (pendingAssoc) {
                 if (pendingAssoc.timestamp + 7680 /* ZigbeeConsts.MAC_INDIRECT_TRANSMISSION_TIMEOUT */ > Date.now()) {
                     await pendingAssoc.sendResp();
@@ -480,7 +483,9 @@ class MACHandler {
                     // deal with expired tx by looking for first that isn't
                     do {
                         if (tx !== undefined && tx.timestamp + 7680 /* ZigbeeConsts.MAC_INDIRECT_TRANSMISSION_TIMEOUT */ > Date.now()) {
-                            await tx.sendFrame();
+                            logger_js_1.logger.info(`[AQARA-JOIN] 10 INDIRECT_DEQUEUED ieee=${address64} nwk=${macHeader.source16} remaining=${addrTXs.length}`, NS);
+                            const sent = await tx.sendFrame();
+                            logger_js_1.logger.info(`[AQARA-JOIN] 11 INDIRECT_TX_RESULT ieee=${address64} nwk=${macHeader.source16} success=${sent}`, NS);
                             break;
                         }
                         tx = addrTXs.shift();
