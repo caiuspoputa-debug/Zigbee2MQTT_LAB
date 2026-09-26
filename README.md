@@ -1,4 +1,4 @@
-# Zigbee2MQTT M1S ZoH LAB
+# Zigbee2MQTT M1S ZoH LAB Experimental
 
 Add-on local Home Assistant bazat pe Zigbee2MQTT 2.14.1, cu:
 
@@ -6,8 +6,10 @@ Add-on local Home Assistant bazat pe Zigbee2MQTT 2.14.1, cu:
 - zigbee-on-host 0.2.4;
 - conexiune M1S prin `tcp://IP_M1S:1886`, cu `adapter: zoh`;
 - unsprezece diagnostice `[AQARA-JOIN]`, inclusiv cererea de date si livrarea indirecta pentru dispozitivele pe baterie.
+- remediere experimentala pentru sincronizarea cozii indirecte cu lista MAC source-match a RCP-ului;
+- retransmiterea cadrului indirect la urmatorul DATA_REQUEST atunci cand transmisia primeste NO_ACK.
 
-Fluxul Zigbee de join nu este schimbat. Instrumentarea suplimentara observa coada indirecta si rezultatul transmisiei fara a modifica deciziile protocolului.
+LAB 6 modifica functional livrarea indirecta. LAB 5 ramane varianta de diagnostic fara schimbari functionale.
 
 ## Instalare minima in Home Assistant OS/Supervised
 
@@ -26,7 +28,7 @@ Configuratia initiala M1S/TCP provine din kitul `Aqara_M1S_0.1.0_COORDINATOR_LAB
 1. Confirma in log versiunea Zigbee2MQTT 2.14.1 si conectarea la `tcp://IP_M1S:1886` cu adaptorul `zoh`.
 2. Activeaza temporar permit join si imperecheaza un singur dispozitiv Aqara.
 3. Cauta `[AQARA-JOIN]` in logul add-on-ului.
-4. Pentru dispozitivul problematic, urmareste in special marcajele 8 `INDIRECT_QUEUED`, 9 `DATA_REQ`, 10 `INDIRECT_DEQUEUED` si 11 `INDIRECT_TX_RESULT`.
+4. Confirma aparitia `RCP_SRC_MATCH`, apoi urmareste marcajele 8-11. Succesul asteptat este `INDIRECT_TX_RESULT ... success=true`, urmat de marcajele 5-7.
 5. Dezactiveaza permit join dupa test.
 
 Nu porni doua procese Zigbee coordinator simultan pe acelasi endpoint TCP al M1S.

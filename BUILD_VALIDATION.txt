@@ -1,6 +1,6 @@
 Zigbee2MQTT M1S ZoH LAB - validation 2026-09-26
 
-Package version: 2.14.1-lab.5
+Package version: 2.14.1-lab.6 experimental
 
 Pinned versions
 - Zigbee2MQTT 2.14.1
@@ -11,6 +11,7 @@ Passed checks
 - Full Zigbee2MQTT TypeScript build: PASS
 - mac-handler.js node --check: PASS
 - aps-handler.js node --check: PASS
+- ot-rcp-driver.js node --check: PASS
 - Home Assistant add-on config YAML parse: PASS
 - M1S source configuration YAML parse: PASS
 - run.sh shell syntax: PASS
@@ -20,8 +21,9 @@ Passed checks
 - aps-handler.js audit after removing logger lines equals upstream local file: PASS
 
 Patch SHA256
-5A6DDFD6CCB40238AB907163FAEF91D91C35D2D4E964BAB54977D34C4488612A  mac-handler.js
+3FDAD1166A6D35B55AC7A10C1BB2ED0775F425830820A44C8B2BF158DD7D2F10  mac-handler.js
 E1C34B1A7DB275FC3A2F6A6E72D5604DEDFED384EFACA9F6D95D26FD26300B04  aps-handler.js
+DA956C15C3E7662E3F7739822538EA597C3C96A8563DECC701ED91DD2F283AF2  ot-rcp-driver.js
 
 Not run locally
 - Docker image build/start: Docker is not installed on the validation host.

@@ -119,6 +119,7 @@ class MACHandler {
                         sendFrame: this.sendFrameDirect.bind(this, seqNum, payload, dest16, dest64),
                         timestamp: Date.now(),
                     });
+                    await this.#callbacks.onIndirectQueueChanged?.();
                     logger_js_1.logger.info(`[AQARA-JOIN] 8 INDIRECT_QUEUED ieee=${dest64} nwk=${dest16} seq=${seqNum} queue=${addrTXs.length}`, NS);
                     logger_js_1.logger.debug(() => `=|=> MAC[seqNum=${seqNum} dst=${dest16}:${dest64}] set for indirect transmission (count=${addrTXs.length})`, NS);
                     return; // done
@@ -480,17 +481,26 @@ class MACHandler {
             else {
                 const addrTXs = this.#context.indirectTransmissions.get(address64);
                 if (addrTXs !== undefined) {
-                    let tx = addrTXs.shift();
-                    // deal with expired tx by looking for first that isn't
-                    do {
-                        if (tx !== undefined && tx.timestamp + 7680 /* ZigbeeConsts.MAC_INDIRECT_TRANSMISSION_TIMEOUT */ > Date.now()) {
-                            logger_js_1.logger.info(`[AQARA-JOIN] 10 INDIRECT_DEQUEUED ieee=${address64} nwk=${macHeader.source16} remaining=${addrTXs.length}`, NS);
-                            const sent = await tx.sendFrame();
-                            logger_js_1.logger.info(`[AQARA-JOIN] 11 INDIRECT_TX_RESULT ieee=${address64} nwk=${macHeader.source16} success=${sent}`, NS);
-                            break;
+                    let queueChanged = false;
+                    while (addrTXs.length > 0) {
+                        const tx = addrTXs[0];
+                        if (tx.timestamp + 7680 /* ZigbeeConsts.MAC_INDIRECT_TRANSMISSION_TIMEOUT */ <= Date.now()) {
+                            addrTXs.shift();
+                            queueChanged = true;
+                            continue;
                         }
-                        tx = addrTXs.shift();
-                    } while (tx !== undefined);
+                        logger_js_1.logger.info(`[AQARA-JOIN] 10 INDIRECT_DEQUEUED ieee=${address64} nwk=${macHeader.source16} remaining=${addrTXs.length - 1}`, NS);
+                        const sent = await tx.sendFrame();
+                        logger_js_1.logger.info(`[AQARA-JOIN] 11 INDIRECT_TX_RESULT ieee=${address64} nwk=${macHeader.source16} success=${sent}`, NS);
+                        if (sent) {
+                            addrTXs.shift();
+                            queueChanged = true;
+                        }
+                        break;
+                    }
+                    if (queueChanged) {
+                        await this.#callbacks.onIndirectQueueChanged?.();
+                    }
                 }
             }
         }

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.14.1-lab.6
+
+- Enable the RCP MAC source-match table for sleepy children with queued frames.
+- Keep failed indirect frames queued so a later data request can retry delivery.
+- Experimental functional fix for Aqara transport-key delivery after association.
+
 ## 2.14.1-lab.5
 
 - Report the complete MAC transmission error name, message, code and cause details at info level.
