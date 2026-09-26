@@ -274,6 +274,7 @@ class MACHandler {
                 },
                 timestamp: Date.now(),
             });
+            await this.#callbacks.onIndirectQueueChanged?.();
         }
         return offset;
     }
@@ -477,6 +478,7 @@ class MACHandler {
                 }
                 // always delete, ensures no stale
                 this.#context.pendingAssociations.delete(address64);
+                await this.#callbacks.onIndirectQueueChanged?.();
             }
             else {
                 const addrTXs = this.#context.indirectTransmissions.get(address64);

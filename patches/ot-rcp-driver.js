@@ -71,7 +71,7 @@ class OTRCPDriver {
         const macCallbacks = {
             onFrame: callbacks.onMACFrame,
             onSendFrame: this.sendStreamRaw.bind(this),
-            onIndirectQueueChanged: this.syncSourceMatchShortAddresses.bind(this),
+            onIndirectQueueChanged: this.syncSourceMatchAddresses.bind(this),
             onAPSSendTransportKeyNWK: async (address16, key, keySeqNum, destination64) => {
                 await this.apsHandler.sendTransportKeyNWK(address16, key, keySeqNum, destination64);
             },
@@ -260,22 +260,28 @@ class OTRCPDriver {
         // LAST_STATUS checked in `onFrame`
         await this.sendCommand(3 /* SpinelCommandId.PROP_VALUE_SET */, payload, true, timeout);
     }
-    async syncSourceMatchShortAddresses() {
-        const addresses = [];
+    async syncSourceMatchAddresses() {
+        const shortAddresses = [];
         for (const [address64, transmissions] of this.context.indirectTransmissions) {
             if (transmissions.length > 0) {
                 const address16 = this.context.deviceTable.get(address64)?.address16;
                 if (address16 !== undefined) {
-                    addresses.push(address16);
+                    shortAddresses.push(address16);
                 }
             }
         }
-        const [payload, offset] = (0, spinel_js_1.writePropertyId)(4868 /* SpinelPropertyId.MAC_SRC_MATCH_SHORT_ADDRESSES */, addresses.length * 2);
-        for (let index = 0; index < addresses.length; index++) {
-            payload.writeUInt16LE(addresses[index], offset + index * 2);
+        const extendedAddresses = [...this.context.pendingAssociations.keys()];
+        const [shortPayload, shortOffset] = (0, spinel_js_1.writePropertyId)(4868 /* SpinelPropertyId.MAC_SRC_MATCH_SHORT_ADDRESSES */, shortAddresses.length * 2);
+        for (let index = 0; index < shortAddresses.length; index++) {
+            shortPayload.writeUInt16LE(shortAddresses[index], shortOffset + index * 2);
         }
-        await this.setProperty(payload);
-        logger_js_1.logger.info(`[AQARA-JOIN] RCP_SRC_MATCH short=${addresses.join(",")} count=${addresses.length}`, NS);
+        const [extendedPayload, extendedOffset] = (0, spinel_js_1.writePropertyId)(4869 /* SpinelPropertyId.MAC_SRC_MATCH_EXTENDED_ADDRESSES */, extendedAddresses.length * 8);
+        for (let index = 0; index < extendedAddresses.length; index++) {
+            extendedPayload.writeBigUInt64BE(extendedAddresses[index], extendedOffset + index * 8);
+        }
+        await this.setProperty(shortPayload);
+        await this.setProperty(extendedPayload);
+        logger_js_1.logger.info(`[AQARA-JOIN] RCP_SRC_MATCH short=${shortAddresses.join(",")} extended=${extendedAddresses.join(",")} shortCount=${shortAddresses.length} extendedCount=${extendedAddresses.length}`, NS);
     }
     async sendStreamRaw(payload) {
         await this.setProperty((0, spinel_js_1.writePropertyStreamRaw)(payload, this.#streamRawConfig));

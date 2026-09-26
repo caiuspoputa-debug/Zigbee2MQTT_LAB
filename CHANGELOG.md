@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.14.1-lab.7
+
+- Populate the RCP extended source-match list before the association-response poll.
+- Keep the short source-match list for transport-key delivery after association.
+
 ## 2.14.1-lab.6
 
 - Enable the RCP MAC source-match table for sleepy children with queued frames.

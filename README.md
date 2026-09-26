@@ -6,7 +6,7 @@ Add-on local Home Assistant bazat pe Zigbee2MQTT 2.14.1, cu:
 - zigbee-on-host 0.2.4;
 - conexiune M1S prin `tcp://IP_M1S:1886`, cu `adapter: zoh`;
 - unsprezece diagnostice `[AQARA-JOIN]`, inclusiv cererea de date si livrarea indirecta pentru dispozitivele pe baterie.
-- remediere experimentala pentru sincronizarea cozii indirecte cu lista MAC source-match a RCP-ului;
+- remediere experimentala pentru sincronizarea asocierilor si a cozii indirecte cu listele MAC source-match ale RCP-ului;
 - retransmiterea cadrului indirect la urmatorul DATA_REQUEST atunci cand transmisia primeste NO_ACK.
 
 LAB 6 modifica functional livrarea indirecta. LAB 5 ramane varianta de diagnostic fara schimbari functionale.
