@@ -1,33 +1,9 @@
-Zigbee2MQTT M1S ZoH LAB - validation 2026-09-26
-
-Package version: 2.14.1-lab.12 experimental
-
-Pinned versions
-- Zigbee2MQTT 2.14.1
-- zigbee-herdsman 10.9.2
-- zigbee-on-host 0.2.4
-
-LAB 12 delta
-- Preserve LAB 8 extended-MAC TRANSPORT_KEY addressing.
-- Preserve LAB 9 indirect retry and IEEE+short queue/source-match bookkeeping.
-- Preserve LAB 10 one-shot MAC probe behavior.
-- LAB 11 artificial 5 ms indirect delay is intentionally absent.
-- While pendingAssociations or indirect traffic exists, set MAC_SRC_MATCH_ENABLED=false so the RCP forces Frame Pending in ACKs to child Data Requests.
-- Restore MAC_SRC_MATCH_ENABLED=true automatically after pending association and indirect queues are empty.
-- Keep source-match tables synchronized while forced mode is active so normal behavior can resume cleanly.
-
-Local checks are recorded after build validation.
-Passed local checks
-- ot-rcp-driver.js node --check: PASS
-- mac-handler.js node --check: PASS
-- aps-handler.js node --check: PASS
-- run.sh shell syntax: PASS
-- Home Assistant add-on config YAML parse: PASS
-- repository.yaml parse: PASS
-- LAB 12 functional code delta vs LAB 10 confined to ot-rcp-driver.js: PASS
-- mac-handler.js identical to LAB 10: PASS
-- aps-handler.js identical to LAB 10: PASS
-- Dockerfile LAB 12 marker guard present: PASS
-
-Not run locally
-- Docker image build/start: Docker is not installed on the validation host.
+LAB 13 validation
+- config.yaml version: 2.14.1-lab.13
+- node --check patches/mac-handler.js: PASS
+- node --check patches/ot-rcp-driver.js: PASS
+- node --check patches/aps-handler.js: PASS
+- YAML parse config.yaml/repository.yaml: PASS
+- Functional baseline: LAB 12
+- No intentional protocol/addressing/security/delay changes; diagnostic timing instrumentation only.
+- Docker runtime test: not performed in this environment.

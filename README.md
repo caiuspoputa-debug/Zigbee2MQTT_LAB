@@ -1,7 +1,7 @@
 # Zigbee2MQTT M1S ZoH LAB 12 Experimental
 
-Version: `2.14.1-lab.12`  
-Tag: `v2.14.1-lab.12`
+Version: `2.14.1-lab.13`  
+Tag: `v2.14.1-lab.13`
 
 LAB 12 tests forced MAC Frame Pending during Aqara sleepy-device join.
 

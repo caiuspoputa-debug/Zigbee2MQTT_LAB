@@ -4,6 +4,8 @@ exports.MACHandler = void 0;
 const logger_js_1 = require("../utils/logger.js");
 const mac_js_1 = require("../zigbee/mac.js");
 const NS = "mac-handler";
+const lab13NowUs = () => Number(process.hrtime.bigint() / 1000n);
+const lab13DeltaUs = (start, end) => start !== undefined && end !== undefined ? end - start : "na";
 /**
  * MAC Handler - IEEE 802.15.4 MAC Layer Protocol Operations
  *
@@ -66,6 +68,12 @@ class MACHandler {
     async sendFrameDirect(seqNum, payload, dest16, dest64) {
         if (dest16 === undefined && dest64 !== undefined) {
             dest16 = this.#context.deviceTable.get(dest64)?.address16;
+        }
+        const lab13Timing = this.#context.__aqaraLab13Timing;
+        if (lab13Timing) {
+            lab13Timing.sendFrameDirectUs = lab13NowUs();
+            lab13Timing.macSeq = seqNum;
+            lab13Timing.frameBytes = payload.length;
         }
         try {
             logger_js_1.logger.debug(() => `===> MAC[seqNum=${seqNum} dst=${dest16}:${dest64}]`, NS);
@@ -466,6 +474,8 @@ class MACHandler {
      * @returns New offset after processing
      */
     async processDataReq(_data, offset, macHeader) {
+        const lab13HandlerEntryUs = lab13NowUs();
+        const lab13RawRxUs = this.#context.__aqaraLab13LastStreamRawRxUs;
         logger_js_1.logger.debug(() => `<=== MAC DATA_RQ[macSrc=${macHeader.source16}:${macHeader.source64}]`, NS);
         let address64 = macHeader.source64;
         if (address64 === undefined && macHeader.source16 !== undefined) {
@@ -486,7 +496,19 @@ class MACHandler {
             else {
                 const addrTXs = this.#context.indirectTransmissions.get(address64);
                 if (addrTXs !== undefined) {
+                    if (addrTXs.length > 0) {
+                        const lab13PollId = (this.#context.__aqaraLab13PollId ?? 0) + 1;
+                        this.#context.__aqaraLab13PollId = lab13PollId;
+                        this.#context.__aqaraLab13Timing = {
+                            pollId: lab13PollId,
+                            rawRxUs: lab13RawRxUs,
+                            handlerUs: lab13HandlerEntryUs,
+                            kind: "UNKNOWN",
+                        };
+                    }
                     if (addrTXs.length > 0 && macHeader.source16 !== undefined && !this.#lab10Probed.has(address64)) {
+                        this.#context.__aqaraLab13Timing.kind = "PROBE";
+                        this.#context.__aqaraLab13Timing.dequeueUs = lab13NowUs();
                         this.#lab10Probed.add(address64);
                         const probeSeqNum = this.nextSeqNum();
                         const probeFrame = (0, mac_js_1.encodeMACFrame)({
@@ -510,6 +532,12 @@ class MACHandler {
                         }, Buffer.alloc(0));
                         logger_js_1.logger.info(`[AQARA-LAB10] MAC_PROBE_TX ieee=${address64} nwk=${macHeader.source16} seq=${probeSeqNum} ackRequest=true framePending=true bytes=${probeFrame.length}`, NS);
                         let probeSuccess = false;
+                        const t = this.#context.__aqaraLab13Timing;
+                        if (t) {
+                            t.sendFrameDirectUs = lab13NowUs();
+                            t.macSeq = probeSeqNum;
+                            t.frameBytes = probeFrame.length;
+                        }
                         try {
                             await this.#callbacks.onSendFrame(probeFrame);
                             probeSuccess = true;
@@ -518,6 +546,8 @@ class MACHandler {
                             logger_js_1.logger.info(`[AQARA-LAB10] MAC_PROBE_ERROR ieee=${address64} nwk=${macHeader.source16} seq=${probeSeqNum} name=${error.name} message=${error.message} code=${error.code} cause=${String(error.cause)} causeCode=${error.cause?.code} causeMessage=${error.cause?.message}`, NS);
                         }
                         logger_js_1.logger.info(`[AQARA-LAB10] MAC_PROBE_RESULT ieee=${address64} nwk=${macHeader.source16} seq=${probeSeqNum} success=${probeSuccess} queueStill=${addrTXs.length}`, NS);
+                        const resultUs = lab13NowUs();
+                        logger_js_1.logger.info(`[AQARA-LAB13] TIMING kind=PROBE poll=${t?.pollId} ieee=${address64} nwk=${macHeader.source16} seq=${probeSeqNum} bytes=${probeFrame.length} success=${probeSuccess} raw_to_handler_us=${lab13DeltaUs(t?.rawRxUs, t?.handlerUs)} handler_to_dequeue_us=${lab13DeltaUs(t?.handlerUs, t?.dequeueUs)} dequeue_to_direct_us=${lab13DeltaUs(t?.dequeueUs, t?.sendFrameDirectUs)} direct_to_streamraw_us=${lab13DeltaUs(t?.sendFrameDirectUs, t?.streamRawEnterUs)} streamraw_to_writer_us=${lab13DeltaUs(t?.streamRawEnterUs, t?.writerUs)} raw_to_writer_us=${lab13DeltaUs(t?.rawRxUs, t?.writerUs)} writer_to_spinel_result_us=${lab13DeltaUs(t?.writerUs, t?.streamRawDoneUs)} raw_to_spinel_result_us=${lab13DeltaUs(t?.rawRxUs, t?.streamRawDoneUs)} handler_total_us=${lab13DeltaUs(t?.handlerUs, resultUs)}`, NS);
                         return offset;
                     }
                     let queueChanged = false;
@@ -528,9 +558,16 @@ class MACHandler {
                             queueChanged = true;
                             continue;
                         }
+                        const t = this.#context.__aqaraLab13Timing;
+                        if (t) {
+                            t.kind = "INDIRECT";
+                            t.dequeueUs = lab13NowUs();
+                        }
                         logger_js_1.logger.info(`[AQARA-JOIN] 10 INDIRECT_DEQUEUED ieee=${address64} nwk=${macHeader.source16} remaining=${addrTXs.length - 1}`, NS);
                         const sent = await tx.sendFrame();
+                        const lab13ResultUs = lab13NowUs();
                         logger_js_1.logger.info(`[AQARA-JOIN] 11 INDIRECT_TX_RESULT ieee=${address64} nwk=${macHeader.source16} success=${sent}`, NS);
+                        logger_js_1.logger.info(`[AQARA-LAB13] TIMING kind=INDIRECT poll=${t?.pollId} ieee=${address64} nwk=${macHeader.source16} seq=${t?.macSeq} bytes=${t?.frameBytes} success=${sent} raw_to_handler_us=${lab13DeltaUs(t?.rawRxUs, t?.handlerUs)} handler_to_dequeue_us=${lab13DeltaUs(t?.handlerUs, t?.dequeueUs)} dequeue_to_direct_us=${lab13DeltaUs(t?.dequeueUs, t?.sendFrameDirectUs)} direct_to_streamraw_us=${lab13DeltaUs(t?.sendFrameDirectUs, t?.streamRawEnterUs)} streamraw_to_writer_us=${lab13DeltaUs(t?.streamRawEnterUs, t?.writerUs)} raw_to_writer_us=${lab13DeltaUs(t?.rawRxUs, t?.writerUs)} writer_to_spinel_result_us=${lab13DeltaUs(t?.writerUs, t?.streamRawDoneUs)} raw_to_spinel_result_us=${lab13DeltaUs(t?.rawRxUs, t?.streamRawDoneUs)} handler_total_us=${lab13DeltaUs(t?.handlerUs, lab13ResultUs)}`, NS);
                         if (sent) {
                             addrTXs.shift();
                             queueChanged = true;

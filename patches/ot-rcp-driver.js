@@ -17,6 +17,7 @@ const stack_context_js_1 = require("../zigbee-stack/stack-context.js");
 const ot_rcp_parser_js_1 = require("./ot-rcp-parser.js");
 const ot_rcp_writer_js_1 = require("./ot-rcp-writer.js");
 const NS = "ot-rcp-driver";
+const lab13NowUs = () => Number(process.hrtime.bigint() / 1000n);
 // const SPINEL_FRAME_MAX_SIZE = 1300;
 // const SPINEL_FRAME_MAX_COMMAND_HEADER_SIZE = 4;
 // const SPINEL_FRAME_MAX_COMMAND_PAYLOAD_SIZE = SPINEL_FRAME_MAX_SIZE - SPINEL_FRAME_MAX_COMMAND_HEADER_SIZE;
@@ -153,6 +154,7 @@ class OTRCPDriver {
      * - Minimal allocations in critical paths
      */
     async onStreamRawFrame(payload, metadata) {
+        this.context.__aqaraLab13LastStreamRawRxUs = lab13NowUs();
         if (!this.#networkUp) {
             return;
         }
@@ -247,6 +249,9 @@ class OTRCPDriver {
         };
         const hdlcFrame = (0, spinel_js_1.encodeSpinelFrame)(spinelFrame);
         // only send what is recorded as "data" (by length)
+        if (this.context.__aqaraLab13ExpectStreamRawCommand && this.context.__aqaraLab13Timing) {
+            this.context.__aqaraLab13Timing.writerUs = lab13NowUs();
+        }
         this.writer.writeBuffer(hdlcFrame.data.subarray(0, hdlcFrame.length));
         if (waitForResponse) {
             return await this.waitForTID(spinelFrame.header.tid, timeout);
@@ -304,7 +309,20 @@ class OTRCPDriver {
         logger_js_1.logger.info(`[AQARA-LAB12] FORCE_FRAME_PENDING active=${forceFramePending} sourceMatchEnabled=${!forceFramePending} pendingAssociations=${this.context.pendingAssociations.size} queuedExtendedCount=${queuedExtendedAddresses.length}`, NS);
     }
     async sendStreamRaw(payload) {
-        await this.setProperty((0, spinel_js_1.writePropertyStreamRaw)(payload, this.#streamRawConfig));
+        const timing = this.context.__aqaraLab13Timing;
+        if (timing) {
+            timing.streamRawEnterUs = lab13NowUs();
+            this.context.__aqaraLab13ExpectStreamRawCommand = true;
+        }
+        try {
+            await this.setProperty((0, spinel_js_1.writePropertyStreamRaw)(payload, this.#streamRawConfig));
+        }
+        finally {
+            if (timing) {
+                timing.streamRawDoneUs = lab13NowUs();
+                this.context.__aqaraLab13ExpectStreamRawCommand = false;
+            }
+        }
     }
     /**
      * @returns [SPINEL_PROTOCOL_VERSION_THREAD_MAJOR, SPINEL_PROTOCOL_VERSION_THREAD_MINOR]
