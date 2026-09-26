@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.14.1-lab.10
+
+- Add one isolated MAC DATA probe before the first post-association `TRANSPORT_KEY` delivery attempt.
+- Address the probe to the child short address with `ackRequest=true`, `framePending=true`, short coordinator source and zero MAC payload.
+- Keep `TRANSPORT_KEY` queued during the probe; normal LAB 9 indirect delivery resumes only on the next `DATA_REQ`.
+- Log `[AQARA-LAB10] MAC_PROBE_TX`, `MAC_PROBE_ERROR` and `MAC_PROBE_RESULT` without changing network-key/security contents.
+- Reset the one-shot probe marker on every new `ASSOC_REQ`; preserve all LAB 8/LAB 9 behavior.
+
 ## 2.14.1-lab.9
 
 - Keep the IEEE source-match entry active while a joining sleepy device still has queued indirect traffic.

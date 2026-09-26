@@ -9,7 +9,7 @@ Add-on local Home Assistant bazat pe Zigbee2MQTT 2.14.1, cu:
 - remediere experimentala pentru sincronizarea asocierilor si a cozii indirecte cu listele MAC source-match ale RCP-ului;
 - retransmiterea cadrului indirect la urmatorul DATA_REQUEST atunci cand transmisia primeste NO_ACK.
 
-LAB 9 pastreaza integral adresarea si retransmiterea din LAB 8 si mentine simultan intrarile IEEE + short in `MAC_SRC_MATCH` cat timp exista un `TRANSPORT_KEY` in coada indirecta. Intrarea IEEE nu mai dispare imediat dupa `ASSOC_RSP`; este eliminata abia dupa golirea cozii.
+LAB 10 pastreaza integral LAB 9 si introduce un probe diagnostic izolat. La primul `DATA_REQ` dupa asociere, cand `TRANSPORT_KEY` este deja in coada, coordinatorul trimite un cadru MAC DATA gol catre adresa short a copilului, cu ACK solicitat si `framePending=true`. Probe-ul nu scoate cheia din coada; `TRANSPORT_KEY` este incercat abia la urmatorul poll.
 
 ## Instalare minima in Home Assistant OS/Supervised
 
@@ -28,7 +28,7 @@ Configuratia initiala M1S/TCP provine din kitul `Aqara_M1S_0.1.0_COORDINATOR_LAB
 1. Confirma in log versiunea Zigbee2MQTT 2.14.1 si conectarea la `tcp://IP_M1S:1886` cu adaptorul `zoh`.
 2. Activeaza temporar permit join si imperecheaza un singur dispozitiv Aqara.
 3. Cauta `[AQARA-JOIN]` in logul add-on-ului.
-4. Confirma `[AQARA-LAB8] TRANSPORT_KEY_MAC_EXT`, apoi verifica `[AQARA-JOIN] RCP_SRC_MATCH` si `[AQARA-LAB9] SRC_MATCH_HOLD`. Dupa `TRANSPORT_KEY_SENT`, lista trebuie sa arate simultan `short=<nwk>` si `extended=<ieee>` cat timp `queue=1`. Succesul asteptat este `INDIRECT_TX_RESULT ... success=true`, urmat de marcajele 5-7.
+4. Confirma `[AQARA-LAB8] TRANSPORT_KEY_MAC_EXT`, `[AQARA-LAB9] SRC_MATCH_HOLD`, apoi urmareste LAB 10. La primul `DATA_REQ` cu `queue=1` trebuie sa apara `[AQARA-LAB10] MAC_PROBE_TX` urmat de `[AQARA-LAB10] MAC_PROBE_RESULT ... success=true|false`; cheia trebuie sa ramana in coada (`queueStill=1`). La urmatorul `DATA_REQ` se reia fluxul normal LAB 9 si se incearca `TRANSPORT_KEY`.
 5. Dezactiveaza permit join dupa test.
 
 Nu porni doua procese Zigbee coordinator simultan pe acelasi endpoint TCP al M1S.

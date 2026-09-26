@@ -16,4 +16,4 @@ Instrumentation scope:
 6. `DEVICE_ANNCE`
 7. `DEVICE_JOINED_CALLBACK`
 
-LAB 9 pastreaza cheia, securitatea, adresarea MAC IEEE din LAB 8, starea de asociere, autorizarea si callback-urile existente. Singura schimbare functionala noua este retinerea intrarii IEEE in `MAC_SRC_MATCH` cat timp exista transmisii indirecte in coada; adresa short ramane prezenta in paralel.
+LAB 10 pastreaza integral LAB 9 si adauga un singur test diagnostic inainte de prima tentativa de livrare a `TRANSPORT_KEY`: la primul `DATA_REQ` cu cheia deja in coada trimite un cadru MAC DATA gol, adresat short, cu `ackRequest=true` si `framePending=true`. Cheia ramane in coada si este incercata abia la urmatorul `DATA_REQ`. Testul separa raspunsul MAC/RCP la poll de continutul `TRANSPORT_KEY`.

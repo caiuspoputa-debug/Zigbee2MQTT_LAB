@@ -1,18 +1,18 @@
 Zigbee2MQTT M1S ZoH LAB - validation 2026-09-26
 
-Package version: 2.14.1-lab.9 experimental
+Package version: 2.14.1-lab.10 experimental
 
 Pinned versions
 - Zigbee2MQTT 2.14.1
 - zigbee-herdsman 10.9.2
 - zigbee-on-host 0.2.4
 
-LAB 9 delta
-- Preserve the LAB 8 IEEE MAC destination for the initial direct-unicast TRANSPORT_KEY.
-- Keep RCP MAC source-match EXTENDED entry for a child while that child has non-empty indirect traffic.
-- Build the extended source-match list from pending associations plus queued indirect-transmission device IEEE addresses.
-- Keep SHORT and EXTENDED source-match entries active in parallel until successful delivery empties the queue.
-- Preserve retry-after-NO_ACK and all LAB 8 join/addressing behavior.
+LAB 10 delta
+- Preserve all LAB 9 source-match, retry and LAB 8 extended-MAC TRANSPORT_KEY behavior.
+- On the first post-association DATA_REQ with indirect traffic queued, send one empty MAC DATA probe to the assigned short address.
+- Probe flags: ACK request=true, framePending=true, short destination, short coordinator source, no MAC security, zero payload.
+- Do not dequeue or attempt TRANSPORT_KEY on the probe poll; resume normal LAB 9 behavior on the next DATA_REQ.
+- Reset the one-shot probe state for every new association request.
 
 Passed local checks
 - mac-handler.js node --check: PASS
@@ -22,10 +22,10 @@ Passed local checks
 - run.sh shell syntax: PASS
 - Home Assistant add-on config YAML parse: PASS
 - repository.yaml parse: PASS
-- mac-handler.js identical to LAB 8: PASS
-- aps-handler.js identical to LAB 8: PASS
-- LAB 9 functional code delta confined to ot-rcp-driver.js: PASS
-- Dockerfile contains LAB 8 and LAB 9 marker-count guards: PASS
+- aps-handler.js identical to LAB 9: PASS
+- ot-rcp-driver.js identical to LAB 9: PASS
+- LAB 10 functional code delta confined to mac-handler.js: PASS
+- Dockerfile contains LAB 8, LAB 9 and LAB 10 marker-count guards: PASS
 
 Not run locally
 - Docker image build/start: Docker is not installed on the validation host.

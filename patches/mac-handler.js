@@ -23,6 +23,8 @@ class MACHandler {
     #noACKCode;
     // Private counters (start at 0, first call returns 1)
     #seqNum = 0;
+    /** LAB 10: one diagnostic MAC DATA probe per association attempt. */
+    #lab10Probed = new Set();
     constructor(context, callbacks, noACKCode, emitFrames = false) {
         this.#context = context;
         this.#callbacks = callbacks;
@@ -260,6 +262,7 @@ class MACHandler {
             logger_js_1.logger.debug(() => `<=x= MAC ASSOC_REQ[macSrc=${macHeader.source16}:${macHeader.source64} cap=${capabilities}] Invalid source64`, NS);
         }
         else {
+            this.#lab10Probed.delete(macHeader.source64);
             const device = this.#context.deviceTable.get(macHeader.source64);
             const address16 = device?.address16;
             const decodedCap = (0, mac_js_1.decodeMACCapabilities)(capabilities);
@@ -483,6 +486,40 @@ class MACHandler {
             else {
                 const addrTXs = this.#context.indirectTransmissions.get(address64);
                 if (addrTXs !== undefined) {
+                    if (addrTXs.length > 0 && macHeader.source16 !== undefined && !this.#lab10Probed.has(address64)) {
+                        this.#lab10Probed.add(address64);
+                        const probeSeqNum = this.nextSeqNum();
+                        const probeFrame = (0, mac_js_1.encodeMACFrame)({
+                            frameControl: {
+                                frameType: 1 /* MACFrameType.DATA */,
+                                securityEnabled: false,
+                                framePending: true,
+                                ackRequest: true,
+                                panIdCompression: true,
+                                seqNumSuppress: false,
+                                iePresent: false,
+                                destAddrMode: 2 /* MACFrameAddressMode.SHORT */,
+                                frameVersion: 0 /* MACFrameVersion.V2003 */,
+                                sourceAddrMode: 2 /* MACFrameAddressMode.SHORT */,
+                            },
+                            sequenceNumber: probeSeqNum,
+                            destinationPANId: this.#context.netParams.panId,
+                            destination16: macHeader.source16,
+                            source16: 0 /* ZigbeeConsts.COORDINATOR_ADDRESS */,
+                            fcs: 0,
+                        }, Buffer.alloc(0));
+                        logger_js_1.logger.info(`[AQARA-LAB10] MAC_PROBE_TX ieee=${address64} nwk=${macHeader.source16} seq=${probeSeqNum} ackRequest=true framePending=true bytes=${probeFrame.length}`, NS);
+                        let probeSuccess = false;
+                        try {
+                            await this.#callbacks.onSendFrame(probeFrame);
+                            probeSuccess = true;
+                        }
+                        catch (error) {
+                            logger_js_1.logger.info(`[AQARA-LAB10] MAC_PROBE_ERROR ieee=${address64} nwk=${macHeader.source16} seq=${probeSeqNum} name=${error.name} message=${error.message} code=${error.code} cause=${String(error.cause)} causeCode=${error.cause?.code} causeMessage=${error.cause?.message}`, NS);
+                        }
+                        logger_js_1.logger.info(`[AQARA-LAB10] MAC_PROBE_RESULT ieee=${address64} nwk=${macHeader.source16} seq=${probeSeqNum} success=${probeSuccess} queueStill=${addrTXs.length}`, NS);
+                        return offset;
+                    }
                     let queueChanged = false;
                     while (addrTXs.length > 0) {
                         const tx = addrTXs[0];
