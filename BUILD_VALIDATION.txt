@@ -4,3 +4,4 @@ LAB 16 validation
 - Functional test delta: one-shot empty MAC probe destination SHORT -> EXT/IEEE
 - Expected probe frame length: 17 bytes
 - No matrix and no artificial delay
+- Dockerfile validation fixed: LAB10 count=1, LAB16 count=2
