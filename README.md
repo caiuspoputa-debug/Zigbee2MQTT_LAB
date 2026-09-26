@@ -28,7 +28,7 @@ Configuratia initiala M1S/TCP provine din kitul `Aqara_M1S_0.1.0_COORDINATOR_LAB
 1. Confirma in log versiunea Zigbee2MQTT 2.14.1 si conectarea la `tcp://IP_M1S:1886` cu adaptorul `zoh`.
 2. Activeaza temporar permit join si imperecheaza un singur dispozitiv Aqara.
 3. Cauta `[AQARA-JOIN]` in logul add-on-ului.
-4. Confirma `[AQARA-LAB8] TRANSPORT_KEY_MAC_EXT`, `[AQARA-LAB9] SRC_MATCH_HOLD`, apoi urmareste LAB 10. La primul `DATA_REQ` cu `queue=1` trebuie sa apara `[AQARA-LAB10] MAC_PROBE_TX` urmat de `[AQARA-LAB10] MAC_PROBE_RESULT ... success=true|false`; cheia trebuie sa ramana in coada (`queueStill=1`). La urmatorul `DATA_REQ` se reia fluxul normal LAB 9 si se incearca `TRANSPORT_KEY`.
+4. Confirma `[AQARA-LAB8] TRANSPORT_KEY_MAC_EXT`, `[AQARA-LAB9] SRC_MATCH_HOLD`, apoi urmareste LAB 10, apoi LAB 11. La primul `DATA_REQ` cu `queue=1` trebuie sa apara `[AQARA-LAB10] MAC_PROBE_TX` urmat de `[AQARA-LAB10] MAC_PROBE_RESULT ... success=true|false`; cheia trebuie sa ramana in coada (`queueStill=1`). La urmatorul `DATA_REQ` se reia fluxul normal LAB 9; LAB 11 introduce 5 ms intre `INDIRECT_DEQUEUED` si transmisia cadrului si logheaza `[AQARA-LAB11] INDIRECT_DELAY ... delayMs=5`.
 5. Dezactiveaza permit join dupa test.
 
 Nu porni doua procese Zigbee coordinator simultan pe acelasi endpoint TCP al M1S.

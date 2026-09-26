@@ -529,6 +529,9 @@ class MACHandler {
                             continue;
                         }
                         logger_js_1.logger.info(`[AQARA-JOIN] 10 INDIRECT_DEQUEUED ieee=${address64} nwk=${macHeader.source16} remaining=${addrTXs.length - 1}`, NS);
+                        const lab11DelayMs = 5;
+                        logger_js_1.logger.info(`[AQARA-LAB11] INDIRECT_DELAY ieee=${address64} nwk=${macHeader.source16} delayMs=${lab11DelayMs}`, NS);
+                        await new Promise((resolve) => setTimeout(resolve, lab11DelayMs));
                         const sent = await tx.sendFrame();
                         logger_js_1.logger.info(`[AQARA-JOIN] 11 INDIRECT_TX_RESULT ieee=${address64} nwk=${macHeader.source16} success=${sent}`, NS);
                         if (sent) {

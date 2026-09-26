@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.14.1-lab.11
+
+- Add a fixed 5 ms delay after a sleepy child `DATA_REQ` and immediately before the queued indirect MAC frame is transmitted.
+- Apply the delay only when an indirect frame is actually dequeued; empty polls are unchanged.
+- Add `[AQARA-LAB11] INDIRECT_DELAY ... delayMs=5` logging so the timing experiment is visible in the join log.
+- Preserve the LAB 10 MAC probe, LAB 9 source-match hold, LAB 8 extended-destination transport-key path, and retry-on-NO_ACK behavior.
+- Purpose: test whether the failing Aqara child requires a slightly later indirect response window before it will ACK the queued frame.
+
 ## 2.14.1-lab.10
 
 - Add one isolated MAC DATA probe before the first post-association `TRANSPORT_KEY` delivery attempt.
