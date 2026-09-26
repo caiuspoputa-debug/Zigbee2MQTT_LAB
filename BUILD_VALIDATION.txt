@@ -1,9 +1,10 @@
-LAB 13 validation
-- config.yaml version: 2.14.1-lab.13
+LAB 15 validation
+- config.yaml version: 2.14.1-lab.15
 - node --check patches/mac-handler.js: PASS
 - node --check patches/ot-rcp-driver.js: PASS
 - node --check patches/aps-handler.js: PASS
 - YAML parse config.yaml/repository.yaml: PASS
-- Functional baseline: LAB 12
-- No intentional protocol/addressing/security/delay changes; diagnostic timing instrumentation only.
+- Functional baseline: LAB 13
+- LAB 15 probe matrix: SHORT_EMPTY, EXT_EMPTY, SHORT_87, EXT_87
+- Real TRANSPORT_KEY remains queued until all four probes complete.
 - Docker runtime test: not performed in this environment.

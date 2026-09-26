@@ -1,15 +1,13 @@
-# LAB 13
+# LAB 15
 
-- Diagnostic-only timing instrumentation for Aqara sleepy-device join.
-- No protocol/addressing/security/timing behavior is intentionally changed.
-- Captures monotonic microsecond timestamps from RCP STREAM_RAW receive through MAC DATA_REQ handling, dequeue, direct-send entry, SPINEL STREAM_RAW entry, writer handoff, and SPINEL TX result.
-- Emits one consolidated `[AQARA-LAB13] TIMING` line after each PROBE or INDIRECT TX to minimize perturbation of the critical path.
-- Keeps LAB 12 force-frame-pending behavior and all prior LAB diagnostics.
+- Starts from LAB 13 behavior and keeps LAB 12 forced Frame Pending.
+- Replaces the LAB 10 single short-address empty probe with a four-stage MAC ACK matrix.
+- Tests SHORT vs EXT addressing independently from small vs 87-byte frame size.
+- Keeps the real `TRANSPORT_KEY` queued until all four probes have run.
+- Preserves LAB 13 monotonic timing diagnostics for every probe and the final indirect transmission.
+- No change to the actual transport-key contents, Zigbee security material, network key, or join authorization logic.
 
-# Changelog
-
-## 2.14.1-lab.13 - 2026-09-26
-- Temporarily disable RCP MAC source matching during pending association/indirect delivery to force Frame Pending in ACKs to sleepy-child polls.
-- Automatically restore source matching after association and indirect queues empty.
-- Remove the LAB 11 timing hypothesis: no artificial 5 ms delay.
-- Preserve LAB 8/9/10 experimental behavior and diagnostics.
+## 2.14.1-lab.15 - 2026-09-26
+- Added `SHORT_EMPTY`, `EXT_EMPTY`, `SHORT_87`, and `EXT_87` probe stages.
+- Added `[AQARA-LAB15] PROBE_TX/PROBE_ERROR/PROBE_RESULT` logs.
+- Actual transport key is attempted only after stage 4.

@@ -1,26 +1,33 @@
-# Zigbee2MQTT M1S ZoH LAB 12 Experimental
+# Zigbee2MQTT M1S ZoH LAB 15 Experimental
 
-Version: `2.14.1-lab.13`  
-Tag: `v2.14.1-lab.13`
+Version: `2.14.1-lab.15`  
+Tag: `v2.14.1-lab.15`
 
-LAB 12 tests forced MAC Frame Pending during Aqara sleepy-device join.
+LAB 15 isolates the remaining Aqara join failure with a four-step MAC ACK probe matrix before the real `TRANSPORT_KEY` is attempted.
 
-## Experimental change
-While a MAC association is pending or the child has indirect traffic queued, LAB 12 temporarily disables `MAC_SRC_MATCH_ENABLED`. On OpenThread RCP this forces the Frame Pending bit in ACKs to MAC Data Requests. Once the association and indirect queue are empty, source matching is automatically re-enabled.
+## Probe matrix
+Each successive sleepy-child `DATA_REQ` consumes one diagnostic stage while leaving the real transport-key frame queued:
 
-LAB 12 preserves LAB 8/9/10 behavior, including extended MAC destination for the transport key, retry after `NO_ACK`, IEEE+short source-match bookkeeping, and the LAB 10 one-shot MAC probe. The LAB 11 artificial 5 ms delay is not used.
+1. `SHORT_EMPTY` — short MAC destination, zero payload, 11-byte frame.
+2. `EXT_EMPTY` — IEEE/extended MAC destination, zero payload, 17-byte frame.
+3. `SHORT_87` — short MAC destination, filler payload sized to an 87-byte total MAC frame.
+4. `EXT_87` — IEEE/extended MAC destination, filler payload sized to an 87-byte total MAC frame.
 
-Key log marker:
+After stage 4, the next `DATA_REQ` is allowed to send the real LAB 13/LAB 12 transport-key frame unchanged. All probes request a MAC ACK and keep `framePending=true`.
+
+LAB 15 preserves the LAB 12 forced-Frame-Pending behavior, LAB 13 timing instrumentation, LAB 9 source-match hold, LAB 8 extended MAC destination for the actual transport key, and retry-after-`NO_ACK`.
+
+Key log markers:
 ```
-[AQARA-LAB12] FORCE_FRAME_PENDING active=true sourceMatchEnabled=false ...
+[AQARA-LAB15] PROBE_TX stage=1/4 name=SHORT_EMPTY ...
+[AQARA-LAB15] PROBE_RESULT stage=1/4 name=SHORT_EMPTY ... success=...
+[AQARA-LAB15] PROBE_TX stage=2/4 name=EXT_EMPTY ...
+[AQARA-LAB15] PROBE_TX stage=3/4 name=SHORT_87 ...
+[AQARA-LAB15] PROBE_TX stage=4/4 name=EXT_87 ...
+[AQARA-LAB13] TIMING kind=LAB15_* ...
 ```
 
-Success target:
-```
-[AQARA-LAB12] FORCE_FRAME_PENDING active=true sourceMatchEnabled=false
-[AQARA-JOIN] 9 DATA_REQ ...
-[AQARA-JOIN] 11 INDIRECT_TX_RESULT ... success=true
-[AQARA-JOIN] 5 AUTHORIZED
-[AQARA-JOIN] 6 DEVICE_ANNCE
-[AQARA-JOIN] 7 DEVICE_JOINED_CALLBACK
-```
+Interpretation:
+- SHORT succeeds / EXT fails => MAC extended-destination path is the differentiator.
+- Small succeeds / 87-byte probe fails => frame length/timing/radio handling is the differentiator.
+- All four probes succeed but the transport key fails => problem is specific to the real NWK/APS/security frame construction, not generic MAC delivery.

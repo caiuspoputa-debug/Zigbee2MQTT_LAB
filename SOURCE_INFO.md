@@ -3,6 +3,7 @@
 - Zigbee2MQTT: 2.14.1
 - zigbee-herdsman: 10.9.2
 - zigbee-on-host: 0.2.4
-- Experimental package: 2.14.1-lab.13
-- Experimental tag: v2.14.1-lab.13
-- Base working tree: LAB 10; LAB 11's only functional delta was the 5 ms delay, intentionally omitted in LAB 12.
+- Experimental package: 2.14.1-lab.15
+- Experimental tag: v2.14.1-lab.15
+- Functional baseline: LAB 13 (including LAB 12 forced Frame Pending and LAB 13 timing instrumentation).
+- LAB 15 delta: four-stage MAC ACK probe matrix before the real transport-key transmission.
