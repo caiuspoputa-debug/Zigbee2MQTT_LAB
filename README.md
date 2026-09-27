@@ -1,15 +1,7 @@
-# Zigbee2MQTT M1S ZoH LAB 20 Experimental
+# Zigbee2MQTT M1S ZoH LAB 19 Experimental
 
-Version: `2.14.1-lab.20`  
-Tag: `v2.14.1-lab.20`
-
-## LAB20 change
-
-Single functional change from LAB19: catch only `HDLC parsing error` at the HDLC decoding boundary and discard that frame. Emit `[AQARA-LAB20] HDLC_DROP bytes=...` without raw contents. Pending commands retain their normal timeouts; no success is fabricated. Unrelated decoding and processing errors still propagate. LAB19 APS behavior is preserved.
-
-This prevents the reported exception escaping this callback; it does not repair or identify the cause of invalid transport data. Repeated HDLC_DROP messages require transport investigation. No firmware changes. Startup identifies LAB20; the LAB19 startup description below is historical.
-
-Validation uses a mocked decoder and extracted unchanged onFrame method body, testing known-error rejection, next-frame processing, waiter preservation and propagation of unrelated errors. It does not validate real HDLC parsing, stream resynchronization, Docker build or hardware behavior.
+Version: `2.14.1-lab.22`  
+Tag: `v2.14.1-lab.22`
 
 ## LAB19 change and validation
 
@@ -17,7 +9,7 @@ One functional change from LAB18: register initial unfragmented APS ACK state be
 
 The early-ACK race is reproduced in simulation on LAB18 and fixed on LAB19. It is not yet proven to explain the field interview delays. Docker build and hardware tests have not been run.
 
-Startup identifies `2.14.1-lab.19 [AQARA-LAB19]`. No new pre-TX logging. Compare a sensor interview under the same network conditions, then verify motion reporting. Preserve LAB18 for rollback; do not reset a working sensor simply to remove historical errors.
+Startup identifies `2.14.1-lab.22 [AQARA-LAB19]`. No new pre-TX logging. Compare a sensor interview under the same network conditions, then verify motion reporting. Preserve LAB18 for rollback; do not reset a working sensor simply to remove historical errors.
 
 ## Inherited LAB18 behavior
 

@@ -1,3 +1,8 @@
+# 2.14.1-lab.22 - 2026-09-27
+
+- Rollback package: Zigbee radio/stack patch files are byte-identical to LAB19.
+- Only add-on metadata/startup label changed so Home Assistant Supervisor can install it as a newer version.
+
 # LAB 13
 
 - Diagnostic-only timing instrumentation for Aqara sleepy-device join.
@@ -33,8 +38,3 @@
 - Retry counts, timeout duration, fragmentation, LAB18 indirect path and replay protection are unchanged. Coordinator firmware is untouched.
 - Startup explicitly identifies LAB19. Simulated regression reproduces early-ACK failure in LAB18 and passes in LAB19.
 - Field log confirms RTCGQ11LM interview and reporting, but does not prove this race caused its slow interview or that LAB18 fast-path was exercised.
-# 2.14.1-lab.20 - 2026-09-27
-
-- Discard frames rejected with the exact HDLC parsing error instead of letting that rejection escape onFrame.
-- Log frame length only; preserve pending timeouts, unrelated errors and LAB19 behavior.
-- Transport root cause and hardware recovery remain unverified.

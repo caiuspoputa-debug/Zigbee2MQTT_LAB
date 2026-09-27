@@ -3,11 +3,9 @@
 - Zigbee2MQTT: 2.14.1
 - zigbee-herdsman: 10.9.2
 - zigbee-on-host: 0.2.4
-- Experimental package: 2.14.1-lab.20
-- Experimental tag: v2.14.1-lab.20
-- Base working tree: preserved LAB19.
-
-LAB20 adds a narrow HDLC parsing-error guard in the RCP receive callback. No firmware change.
+- Experimental package: 2.14.1-lab.22
+- Experimental tag: v2.14.1-lab.22
+- Base working tree: preserved LAB18 with LAB13 timing.
 
 LAB19: pending ACK registration before initial unfragmented MAC send, timeout armed after completion. Fixes simulated early-ACK loss; hardware benefit unverified.
 

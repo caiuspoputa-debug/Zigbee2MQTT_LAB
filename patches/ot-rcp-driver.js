@@ -177,18 +177,7 @@ class OTRCPDriver {
         }
     }
     async onFrame(buffer) {
-        let hdlcFrame;
-        try {
-            hdlcFrame = (0, hdlc_js_1.decodeHdlcFrame)(buffer);
-        }
-        catch (error) {
-            // Only discard the known framing failure; preserve unrelated failures.
-            if (error?.message !== "HDLC parsing error") {
-                throw error;
-            }
-            logger_js_1.logger.warning(`[AQARA-LAB20] HDLC_DROP bytes=${buffer.length}`, NS);
-            return;
-        }
+        const hdlcFrame = (0, hdlc_js_1.decodeHdlcFrame)(buffer);
         // logger.debug(() => `<--- HDLC[length=${hdlcFrame.length}]`, NS);
         const spinelFrame = (0, spinel_js_1.decodeSpinelFrame)(hdlcFrame);
         /* v8 ignore if -- @preserve */
