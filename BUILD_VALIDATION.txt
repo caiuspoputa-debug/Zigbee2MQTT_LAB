@@ -1,11 +1,12 @@
-LAB 18 validation
-- config.yaml version: 2.14.1-lab.18
+LAB19 validation
+- config.yaml version: 2.14.1-lab.19
 - node --check patches/mac-handler.js: PASS
 - node --check patches/ot-rcp-driver.js: PASS
 - node --check patches/aps-handler.js: PASS
-- YAML parse config.yaml/repository.yaml: PASS
-- Functional baseline: LAB 17 / LAB 13 timing.
-- Single functional change: real indirect frames are preloaded as immutable host-side queue entries and sent from the DATA_REQ fast path.
-- LAB17 filler probe removed.
+- Functional baseline: LAB18.
+- Single functional change: register initial unfragmented APS ACK before MAC send, arm timeout after completion.
+- Simulation: early/late/missing/mismatched ACK, thrown/false MAC failure, broadcast PASS.
+- Early-ACK regression reproduced on LAB18 (unexpected pending timer).
+- Simulation mocks encoders, radio and timers; does not verify wire encoding or fragmented traffic.
 - Coordinator firmware untouched.
-- Docker runtime test: not performed in this environment.
+- Docker image build and hardware test: not performed. Docker unavailable locally.
