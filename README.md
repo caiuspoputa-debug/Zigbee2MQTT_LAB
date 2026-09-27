@@ -1,7 +1,15 @@
-# Zigbee2MQTT M1S ZoH LAB 19 Experimental
+# Zigbee2MQTT M1S ZoH LAB 20 Experimental
 
-Version: `2.14.1-lab.19`  
-Tag: `v2.14.1-lab.19`
+Version: `2.14.1-lab.20`  
+Tag: `v2.14.1-lab.20`
+
+## LAB20 change
+
+Single functional change from LAB19: catch only `HDLC parsing error` at the HDLC decoding boundary and discard that frame. Emit `[AQARA-LAB20] HDLC_DROP bytes=...` without raw contents. Pending commands retain their normal timeouts; no success is fabricated. Unrelated decoding and processing errors still propagate. LAB19 APS behavior is preserved.
+
+This prevents the reported exception escaping this callback; it does not repair or identify the cause of invalid transport data. Repeated HDLC_DROP messages require transport investigation. No firmware changes. Startup identifies LAB20; the LAB19 startup description below is historical.
+
+Validation uses a mocked decoder and extracted unchanged onFrame method body, testing known-error rejection, next-frame processing, waiter preservation and propagation of unrelated errors. It does not validate real HDLC parsing, stream resynchronization, Docker build or hardware behavior.
 
 ## LAB19 change and validation
 
