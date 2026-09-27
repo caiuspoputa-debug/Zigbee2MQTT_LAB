@@ -5,11 +5,11 @@
 - zigbee-on-host: 0.2.4
 - Experimental package: 2.14.1-lab.22
 - Experimental tag: v2.14.1-lab.22
-- Base working tree: preserved LAB18 with LAB13 timing.
-
-LAB19: pending ACK registration before initial unfragmented MAC send, timeout armed after completion. Fixes simulated early-ACK loss; hardware benefit unverified.
+- Base working tree: exact supplied LAB18 functional archive; LAB18 code retained byte-for-byte.
 
 
 LAB 18 delta: remove the one-shot filler probe and preload the real indirect MAC frame as an immutable host-side queue entry before the sleepy-child poll.
 The DATA_REQ path transmits that prebuilt payload directly through STREAM_RAW and emits one consolidated `[AQARA-LAB18] FAST_PATH_RESULT` line after TX completion.
 This package does not modify the M1S/JN5189 coordinator firmware; if this still misses ACK, the remaining fast-path move must happen inside the RCP/JN5189 firmware or a lower local hub service.
+
+LAB22 delta: metadata/package version only. Runtime Zigbee/ZoH code is unchanged from LAB18.

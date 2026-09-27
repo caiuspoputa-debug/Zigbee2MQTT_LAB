@@ -207,7 +207,10 @@ class APSHandler {
         if (finalPayload.length > 100 /* ZigbeeAPSConsts.PAYLOAD_MAX_SIZE */) {
             return await this.#sendFragmentedData(params, apsCounter);
         }
-        await this.#sendDataInternal(params, apsCounter, 0);
+        const sendDest16 = await this.#sendDataInternal(params, apsCounter, 0);
+        if (sendDest16 !== undefined) {
+            this.#trackPendingAck(sendDest16, apsCounter, params);
+        }
         return apsCounter;
     }
     /**
@@ -336,32 +339,7 @@ class APSHandler {
             source16: 0 /* ZigbeeConsts.COORDINATOR_ADDRESS */,
             fcs: 0,
         }, nwkFrame);
-        // Register before yielding to MAC so an early APS ACK is not discarded.
-        // Arm the timeout after MAC completes, preserving the existing wait duration.
-        const pendingKey = `${nwkDest16}:${apsCounter}`;
-        const pending = attempt === 0 && !isFragment && macDest16 !== 65535
-            ? this.#trackPendingAck(nwkDest16, apsCounter, params, undefined, false)
-            : undefined;
-        let result;
-        try {
-            result = await this.#macHandler.sendFrame(macSeqNum, macFrame, macDest16, undefined);
-        }
-        catch (error) {
-            if (pending !== undefined && this.#pendingAcks.get(pendingKey) === pending) {
-                this.#pendingAcks.delete(pendingKey);
-            }
-            throw error;
-        }
-        if (pending !== undefined && this.#pendingAcks.get(pendingKey) === pending) {
-            if (result === false) {
-                this.#pendingAcks.delete(pendingKey);
-            }
-            else {
-                pending.timer = setTimeout(async () => {
-                    await this.#handleAckTimeout(pendingKey);
-                }, exports.CONFIG_APS_ACK_WAIT_DURATION_MS);
-            }
-        }
+        const result = await this.#macHandler.sendFrame(macSeqNum, macFrame, macDest16, undefined);
         if (result === false) {
             logger_js_1.logger.error(`=x=> APS DATA[seqNum=(${apsCounter}/${nwkSeqNum}/${macSeqNum}) attempt=${attempt} macDst16=${macDest16} nwkDst=${nwkDest16}:${nwkDest64}] Failed to send`, NS);
             throw new Error("Failed to send");
@@ -560,24 +538,22 @@ class APSHandler {
      * - ⚠️  Pending table keyed by {dest16,counter}; no IEEE64 fallback if short address unknown
      * DEVICE SCOPE: Coordinator, routers (N/A), end devices (N/A)
      */
-    #trackPendingAck(dest16, apsCounter, params, fragment, armTimer = true) {
+    #trackPendingAck(dest16, apsCounter, params, fragment) {
         const key = `${dest16}:${apsCounter}`;
         const existing = this.#pendingAcks.get(key);
         if (existing?.timer !== undefined) {
             clearTimeout(existing.timer);
         }
-        const entry = {
+        this.#pendingAcks.set(key, {
             params,
             apsCounter,
             dest16,
             retries: 0,
-            timer: armTimer ? setTimeout(async () => {
+            timer: setTimeout(async () => {
                 await this.#handleAckTimeout(key);
-            }, exports.CONFIG_APS_ACK_WAIT_DURATION_MS) : undefined,
+            }, exports.CONFIG_APS_ACK_WAIT_DURATION_MS),
             fragment,
-        };
-        this.#pendingAcks.set(key, entry);
-        return entry;
+        });
     }
     /**
      * 05-3474-23 #4.4.2.3 (APS acknowledgement management)

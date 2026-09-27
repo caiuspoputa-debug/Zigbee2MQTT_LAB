@@ -1,8 +1,3 @@
-# 2.14.1-lab.22 - 2026-09-27
-
-- Rollback package: Zigbee radio/stack patch files are byte-identical to LAB19.
-- Only add-on metadata/startup label changed so Home Assistant Supervisor can install it as a newer version.
-
 # LAB 13
 
 - Diagnostic-only timing instrumentation for Aqara sleepy-device join.
@@ -12,6 +7,12 @@
 - Keeps LAB 12 force-frame-pending behavior and all prior LAB diagnostics.
 
 # Changelog
+
+## 2.14.1-lab.22 - 2026-09-27
+- Packaging-only rollback to the exact confirmed functional LAB18 Zigbee/ZoH implementation.
+- Core runtime files remain byte-identical to the supplied LAB18 archive.
+- Runtime diagnostics intentionally retain the `[AQARA-LAB18]` marker names.
+- No coordinator/JN5189 firmware changes and no unrelated Zigbee behavior changes.
 
 ## 2.14.1-lab.18 - 2026-09-26
 - Based on LAB 17 archive, with LAB 13 timing kept as the measurement baseline.
@@ -31,10 +32,3 @@
 - Based strictly on LAB 13.
 - Changes only the one-shot SHORT probe payload from 0 bytes to 76 bytes of 0xA5 (87-byte MAC frame total).
 - No addressing, security, source-match, frame-pending, indirect-queue, or timing changes.
-# 2.14.1-lab.19 - 2026-09-26
-
-- Single functional change: register pending APS ACK before the first unfragmented MAC send; start its timeout only after MAC completes.
-- An early ACK can now resolve the pending entry instead of being discarded. MAC failures clean up the entry.
-- Retry counts, timeout duration, fragmentation, LAB18 indirect path and replay protection are unchanged. Coordinator firmware is untouched.
-- Startup explicitly identifies LAB19. Simulated regression reproduces early-ACK failure in LAB18 and passes in LAB19.
-- Field log confirms RTCGQ11LM interview and reporting, but does not prove this race caused its slow interview or that LAB18 fast-path was exercised.
