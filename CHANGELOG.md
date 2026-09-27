@@ -8,12 +8,6 @@
 
 # Changelog
 
-## 2.14.1-lab.22 - 2026-09-27
-- Packaging-only rollback to the exact confirmed functional LAB18 Zigbee/ZoH implementation.
-- Core runtime files remain byte-identical to the supplied LAB18 archive.
-- Runtime diagnostics intentionally retain the `[AQARA-LAB18]` marker names.
-- No coordinator/JN5189 firmware changes and no unrelated Zigbee behavior changes.
-
 ## 2.14.1-lab.18 - 2026-09-26
 - Based on LAB 17 archive, with LAB 13 timing kept as the measurement baseline.
 - Removes the LAB 17 one-shot 87-byte filler probe; LAB18 sends only the real queued indirect frame.

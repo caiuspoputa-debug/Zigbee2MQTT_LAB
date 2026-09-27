@@ -1,11 +1,7 @@
-# Zigbee2MQTT M1S ZoH LAB 22 — LAB18 Functional Baseline
+# Zigbee2MQTT M1S ZoH LAB 18 Experimental
 
-Version: `2.14.1-lab.22`  
-Tag: `v2.14.1-lab.22`
-
-
-> LAB22 is a packaging-only rollback to the confirmed functional LAB18 code.
-> No Zigbee/ZoH functional code has been changed from LAB18. The runtime log markers intentionally remain `[AQARA-LAB18]`.
+Version: `2.14.1-lab.18`  
+Tag: `v2.14.1-lab.18`
 
 LAB 18 tests host-side local indirect fast-path / preloading for Aqara sleepy-device join.
 

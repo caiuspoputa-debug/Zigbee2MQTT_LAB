@@ -1,11 +1,11 @@
-LAB 22 validation
-- config.yaml version: 2.14.1-lab.22
-- Functional baseline: exact supplied LAB18 archive (confirmed router + Aqara motion sensor join/interview in prior test).
-- Runtime Zigbee/ZoH code: unchanged from LAB18.
-- Runtime markers remain [AQARA-LAB18].
-- node --check patches/mac-handler.js: PASS (validated after packaging)
-- node --check patches/ot-rcp-driver.js: PASS (validated after packaging)
-- node --check patches/aps-handler.js: PASS (validated after packaging)
-- YAML parse config.yaml/repository.yaml: PASS (validated after packaging)
+LAB 18 validation
+- config.yaml version: 2.14.1-lab.18
+- node --check patches/mac-handler.js: PASS
+- node --check patches/ot-rcp-driver.js: PASS
+- node --check patches/aps-handler.js: PASS
+- YAML parse config.yaml/repository.yaml: PASS
+- Functional baseline: LAB 17 / LAB 13 timing.
+- Single functional change: real indirect frames are preloaded as immutable host-side queue entries and sent from the DATA_REQ fast path.
+- LAB17 filler probe removed.
 - Coordinator firmware untouched.
-- Docker runtime build: not performed in this environment.
+- Docker runtime test: not performed in this environment.

@@ -1,11 +1,13 @@
 name: Zigbee2MQTT M1S ZoH LAB Experimental
-version: 2.14.1-lab.22
+version: 2.14.1-lab.23
 slug: zigbee2mqtt_m1s_zoh_lab
-description: LAB22 rollback to confirmed functional LAB18 baseline
+description: Experimental ZoH indirect-transmission fix with Aqara join diagnostics
 url: https://github.com/Koenkk/zigbee2mqtt
 startup: application
 boot: auto
 init: false
+ingress: true
+ingress_port: 8080
 arch:
   - amd64
   - aarch64
